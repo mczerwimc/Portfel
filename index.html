@@ -1,16 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="pl">
+<head>
     <meta charset="UTF-8">
-    <title>Untitled</title>
-    <link rel="stylesheet" href="./style.cssv=2">
+    <!-- Automatyczny kod rozciągający stronę na 100% szerokości smartfona -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PortfelMCZ</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --accent: #3b82f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e5e7eb;
+            --input-bg: #f8fafc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 60px; }
+        
+        header { background: linear-gradient(135deg, var(--primary), #0f172a); color: white; padding: 35px 20px; text-align: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        header p { font-size: 14px; opacity: .8; margin-top: 6px; }
+        
+        /* Kontener i chmurki maksymalnie rozszerzone na telefonie */
+        .container { width: 100%; max-width: 650px; margin: 0 auto; padding: 0 8px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 16px 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid var(--border); }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .metric-box { background: var(--input-bg); padding: 14px 10px; border-radius: 12px; border: 1px solid var(--border); }
+        .metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: .5px; }
+        .metric-value { font-size: 17px; font-weight: 700; margin-top: 4px; }
+        .metric-value.plus { color: var(--success); }
+        .metric-value.minus { color: var(--danger); }
+        
+        .form-group { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .form-label { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .select-custom, .input-custom { padding: 8px 12px; font-size: 14px; font-weight: 600; border: 2px solid var(--border); border-radius: 8px; background: var(--input-bg); outline: none; transition: border-color 0.2s; color: var(--text-main); }
+        .select-custom:focus, .input-custom:focus { border-color: var(--accent); }
+        .input-cel { width: 120px; text-align: right; border: 2px solid var(--accent); color: var(--primary); }
+        
+        .simulation-result { background: linear-gradient(to right, #eff6ff, #dbeafe); padding: 18px; border-radius: 14px; margin-top: 16px; border: 1px dashed var(--accent); }
+        .sim-detail-box { margin: 12px 0; font-size: 13px; background: rgba(255,255,255,0.7); padding: 12px; border-radius: 8px; line-height: 1.8; }
+        
+        /* Płynny suwak boczny dla tabeli */
+        .table-responsive { overflow-x: auto; margin-top: 8px; border: 1px solid var(--border); border-radius: 12px; width: 100%; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background-color: #f1f5f9; color: var(--text-main); font-weight: 700; padding: 14px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 14px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; color: white; display: inline-block; text-transform: uppercase; }
+        .badge.bg-blue { background-color: var(--accent); }
+        .badge.bg-green { background-color: var(--success); }
+        .badge.bg-purple { background-color: #a855f7; }
+        
+        .deviation-bar { height: 8px; background-color: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 8px; margin-bottom: 6px; }
+        .deviation-fill { height: 100%; transition: width 0.3s ease; }
+        .allocation-item { margin-bottom: 16px; }
+        .allocation-header { display: flex; justify-content: space-between; font-size: 14px; }
+    </style>
+</head>
+<body>
 
-  </head>
-    
-  <body>
-  <header>
+<header>
     <h1>📈 PortfelMCZ</h1>
     <p>Kalkulator Twoich Pieniędzy • Stan na 24.08.2026</p>
 </header>
@@ -115,66 +171,3 @@
                     <tr>
                         <td><strong>Portfel ETF (na IKE)</strong></td>
                         <td><span class="badge bg-purple">ETF S&P500</span></td>
-                        <td>24 000,00 zł</td>
-                        <td>23 251,34 zł</td>
-                        <td style="color:var(--danger);font-weight:600;">-748,66 zł</td>
-                        <td style="color:var(--danger);font-weight:600;">-3,12%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- 4. ALOKACJA CELU -->
-    <div class="card">
-        <div class="card-title">🔄 4. Alokacja celu i stan rebalansowania</div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:12px;border-bottom:1px dashed var(--border);padding-bottom:6px">
-            <span>Klasa aktywów (Cel | Jest)</span>
-            <span>Odchylenie od celu</span>
-        </div>
-        
-        <div class="allocation-item">
-            <div class="allocation-header"><span id="lblPoduszka">Poduszka Bezpieczeństwa (15.00% | 0.00%)</span> <span id="valPoduszka" style="font-weight:700;">0.00%</span></div>
-            <div class="deviation-bar"><div id="barPoduszka" class="deviation-fill" style="background-color:var(--success)"></div></div>
-        </div>
-        
-        <div class="allocation-item">
-            <div class="allocation-header"><span id="lblObligacje">Komponent Bezpieczny / Obligacje (55.00% | 0.00%)</span> <span id="valObligacje" style="font-weight:700;">0.00%</span></div>
-            <div class="deviation-bar"><div id="barObligacje" class="deviation-fill" style="background-color:var(--accent)"></div></div>
-        </div>
-        
-        <div class="allocation-item">
-            <div class="allocation-header"><span id="lblEtf">Komponent Rynkowy / ETF na IKE (30.00% | 0.00%)</span> <span id="valEtf" style="font-weight:700;">0.00%</span></div>
-            <div class="deviation-bar"><div id="barEtf" class="deviation-fill" style="background-color:var(--danger)"></div></div>
-        </div>
-    </div>
-
-    <!-- 5. CELE FINANSOWE -->
-    <div class="card">
-        <div class="card-title">🎯 5. Monitor celu finansowego</div>
-        <div class="goal-info">
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px">
-                <span>Mój cel finansowy: <input type="number" id="kwotaCeluInput" value="200000" class="input-custom input-cel"> zł</span>
-                <span id="procentCeluTxt" style="color:var(--primary);font-weight:700;">Postęp: --%</span>
-            </div>
-            <div class="deviation-bar" style="background-color:#e2e8f0;height:12px;border-radius:6px">
-                <div id="pasekCeluFill" class="deviation-fill" style="background:linear-gradient(to right, var(--accent), var(--primary));border-radius:6px"></div>
-            </div>
-            <p style="font-size:12px;color:var(--text-muted);margin-top:12px;border-top:1px dashed var(--border);padding-top:10px">* Poza portfelem głównym: pracownicze zabezpieczenie emerytalne (PPK Michał): 30 997,98 zł.</p>
-        </div>
-    </div>
-
-    <!-- 6. LIMITY IKE -->
-    <div class="card">
-        <div class="card-title">🗓 6. Wykorzystanie limitów rocznych IKE</div>
-        <div class="goal-info">
-            <p style="margin-bottom:10px;font-size:14px;">Pozostały limit wpłat na IKE w tym roku: <strong style="color:var(--success)">4 316,37 zł</strong></p>
-            <p style="color:var(--text-muted);font-size:13px;">Sugerowana kwota dopłat: średnio <strong>863,27 zł miesięcznie</strong> przez najbliższe 5 miesięcy roku.</p>
-        </div>
-    </div>
-</div>
-    <script  src="./script.js"></script>
-
-  </body>
-  
-</html>
