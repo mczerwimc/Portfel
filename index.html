@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <header>
+    <h1>📈 PortfelMCZ</h1>
+    <p>Kalkulator Twoich Pieniędzy • Stan na 24.08.2026</p>
+</header>
+
+<div class="container">
+
+    <!-- 1. STAN MAJĄTKU -->
+    <div class="card">
+        <div class="card-title">📊 1. Stan majątku aktualny</div>
+        <div class="summary-grid">
+            <div class="metric-box"><div class="metric-label">Wkład Nominalny</div><div class="metric-value">130 000,00 zł</div></div>
+            <div class="metric-box"><div class="metric-label">Wartość Bieżąca</div><div class="metric-value" style="color:var(--primary)">130 553,34 zł</div></div>
+            <div class="metric-box"><div class="metric-label">Zysk / Strata</div><div class="metric-value plus">+553,34 zł</div></div>
+            <div class="metric-box"><div class="metric-label">Stopa zwrotu</div><div class="metric-value plus">+0,43%</div></div>
+            <div class="metric-box" style="grid-column: span 2; text-align: center;">
+                <div class="metric-label">Średnia miesięczna dopłata</div>
+                <div class="metric-value" style="color:var(--primary)">9 000,00 zł</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ZAŁOŻENIA I SYMULACJA -->
+    <div class="card">
+        <div class="card-title">💡 2. Scenariusze Ochrony Kapitału</div>
+        <div class="form-group">
+            <div class="form-label">Prognoza inflacji rocznej:</div>
+            <select class="select-custom">
+                <option>Niska (1.5%)</option>
+                <option selected>Umiarkowana (3.0%)</option>
+                <option>Wysoka (6.0%)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Horyzont inwestycyjny:</div>
+            <select class="select-custom">
+                <option>3 lata</option>
+                <option selected>5 lat</option>
+                <option>10 lat</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Typ konta obligacji:</div>
+            <select class="select-custom" style="border-color: var(--danger)">
+                <option selected>Konto Zwykłe (z podatkiem Belki)</option>
+                <option>Konto IKE-Obligacje (zwolnione)</option>
+            </select>
+        </div>
+
+        <div class="simulation-result">
+            <div style="font-size:15px;font-weight:800;color:var(--success);margin-bottom:8px;">✅ Inwestycja pokonuje inflację w tym scenariuszu</div>
+            <p style="font-size:14px;font-weight:600;">Szacowany kapitał końcowy: <span style="color:var(--primary);font-size:16px;">167 435 zł</span> na rękę.</p>
+            <div class="sim-detail-box">
+                • Szacowany zysk brutto: +46 216 zł<br>
+                • Koszty wcześniejszego wykupu obligacji: -0 zł<br>
+                • Potrącony podatek Belki (19%): -8 781 zł<br>
+                <strong>• Czysty zysk netto (na rękę): +37 435 zł</strong>
+            </div>
+            <p style="font-size:12px;font-style:italic;color:var(--text-muted)">Nadwyżka zysku netto ponad skumulowaną inflację wynosi ok. 16 744 zł.</p>
+        </div>
+    </div>
+
+    <!-- 3. SKŁADNIKI PORTFELA -->
+    <div class="card">
+        <div class="card-title">📌 3. Składniki portfela i wyniki szczegółowe</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nazwa aktywa</th>
+                        <th>Klasa</th>
+                        <th>Nominał</th>
+                        <th>Bieżąca</th>
+                        <th>Wynik</th>
+                        <th>Zwrot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Konto Oszczędnościowe</strong></td>
+                        <td><span class="badge bg-green">Gotówka</span></td>
+                        <td>30 000,00 zł</td>
+                        <td>30 000,00 zł</td>
+                        <td style="color:var(--text-muted)">0,00 zł</td>
+                        <td>0,00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Obligacje Skarbowe OKI</strong></td>
+                        <td><span class="badge bg-blue">Obligacje</span></td>
+                        <td>0,00 zł</td>
+                        <td>0,00 zł</td>
+                        <td style="color:var(--text-muted)">0,00 zł</td>
+                        <td>0,00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Obligacje Długoterminowe</strong></td>
+                        <td><span class="badge bg-blue">Obligacje</span></td>
+                        <td>76 000,00 zł</td>
+                        <td>77 302,00 zł</td>
+                        <td style="color:var(--success);font-weight:600;">+1 302,00 zł</td>
+                        <td style="color:var(--success);font-weight:600;">+1,71%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Portfel ETF (na IKE)</strong></td>
+                        <td><span class="badge bg-purple">ETF S&P500</span></td>
+                        <td>24 000,00 zł</td>
+                        <td>23 251,34 zł</td>
+                        <td style="color:var(--danger);font-weight:600;">-748,66 zł</td>
+                        <td style="color:var(--danger);font-weight:600;">-3,12%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. ALOKACJA CELU -->
+    <div class="card">
+        <div class="card-title">🔄 4. Alokacja celu i stan rebalansowania</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:12px;border-bottom:1px dashed var(--border);padding-bottom:6px">
+            <span>Klasa aktywów (Cel | Jest)</span>
+            <span>Odchylenie od celu</span>
+        </div>
+        
+        <div class="allocation-item">
+            <div class="allocation-header"><span id="lblPoduszka">Poduszka Bezpieczeństwa (15.00% | 0.00%)</span> <span id="valPoduszka" style="font-weight:700;">0.00%</span></div>
+            <div class="deviation-bar"><div id="barPoduszka" class="deviation-fill" style="background-color:var(--success)"></div></div>
+        </div>
+        
+        <div class="allocation-item">
+            <div class="allocation-header"><span id="lblObligacje">Komponent Bezpieczny / Obligacje (55.00% | 0.00%)</span> <span id="valObligacje" style="font-weight:700;">0.00%</span></div>
+            <div class="deviation-bar"><div id="barObligacje" class="deviation-fill" style="background-color:var(--accent)"></div></div>
+        </div>
+        
+        <div class="allocation-item">
+            <div class="allocation-header"><span id="lblEtf">Komponent Rynkowy / ETF na IKE (30.00% | 0.00%)</span> <span id="valEtf" style="font-weight:700;">0.00%</span></div>
+            <div class="deviation-bar"><div id="barEtf" class="deviation-fill" style="background-color:var(--danger)"></div></div>
+        </div>
+    </div>
+
+    <!-- 5. CELE FINANSOWE -->
+    <div class="card">
+        <div class="card-title">🎯 5. Monitor celu finansowego</div>
+        <div class="goal-info">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px">
+                <span>Mój cel finansowy: <input type="number" id="kwotaCeluInput" value="200000" class="input-custom input-cel"> zł</span>
+                <span id="procentCeluTxt" style="color:var(--primary);font-weight:700;">Postęp: --%</span>
+            </div>
+            <div class="deviation-bar" style="background-color:#e2e8f0;height:12px;border-radius:6px">
+                <div id="pasekCeluFill" class="deviation-fill" style="background:linear-gradient(to right, var(--accent), var(--primary));border-radius:6px"></div>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:12px;border-top:1px dashed var(--border);padding-top:10px">* Poza portfelem głównym: pracownicze zabezpieczenie emerytalne (PPK Michał): 30 997,98 zł.</p>
+        </div>
+    </div>
+
+    <!-- 6. LIMITY IKE -->
+    <div class="card">
+        <div class="card-title">🗓 6. Wykorzystanie limitów rocznych IKE</div>
+        <div class="goal-info">
+            <p style="margin-bottom:10px;font-size:14px;">Pozostały limit wpłat na IKE w tym roku: <strong style="color:var(--success)">4 316,37 zł</strong></p>
+            <p style="color:var(--text-muted);font-size:13px;">Sugerowana kwota dopłat: średnio <strong>863,27 zł miesięcznie</strong> przez najbliższe 5 miesięcy roku.</p>
+        </div>
+    </div>
+</div>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
