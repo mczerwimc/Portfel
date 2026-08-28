@@ -586,7 +586,7 @@
             }));
         }
 
-        // NAPRAWIONY SILNIK WYKRESU SVG: PODPISUJE KAŻDY OKRES I RYSUJE PIONOWE LINIE SIATKI
+        // POPRAWIONY SILNIK WYKRESU: Wykres pobiera realne, roczne wartości XIRR i Realny XIRR bezpośrednio z algorytmu czasu
         function renderujWykresSVG() {
             const wrapper = document.getElementById('wrapper-wykres-szczegoly');
             const kontener = document.getElementById('box-kontener-svg');
@@ -597,17 +597,34 @@
             }
             wrapper.style.display = "block";
 
-            // MATEMATYKA FORTECY: CAŁKOWITY WKŁAD ZABLOKOWANY NA 131 000 ZŁ
             const wkladPocz = 131000;
 
             let punkty = historiaOkresow.map(o => {
-                const xirr = wkladPocz > 0 ? ((o.wartosc - wkladPocz) / wkladPocz) * 100 : 0;
+                // POPRAWKA LOGIKI: Wyliczamy roczną stopę zwrotu bazując na odległości dni od punktu zero (2026-08-28)
+                const dataZero = new Date("2026-08-28");
+                const dataPunktu = new Date(o.dataStr);
+                const roznicaCzasu = dataPunktu.getTime() - dataZero.getTime();
+                const roznicaDni = Math.max(0, Math.ceil(roznicaCzasu / (1000 * 60 * 60 * 24)));
+
+                let wyliczonyXirr = 0;
+                const prostaStopa = wkladPocz > 0 ? ((o.wartosc - wkladPocz) / wkladPocz) : 0;
+
+                if (roznicaDni === 0) {
+                    wyliczonyXirr = prostaStopa * 100;
+                } else {
+                    // Matematyczny wzór XIRR w skali roku: (1 + prosta_stopa) ^ (365 / liczba_dni) - 1
+                    wyliczonyXirr = (Math.pow(1 + prostaStopa, 365 / roznicaDni) - 1) * 100;
+                }
+
+                // Zabezpieczenie przed ekstremalnymi wartościami dla pierwszych tygodni
+                if (wyliczonyXirr > 500) { wyliczonyXirr = prostaStopa * 100; }
+
                 return {
                     etykieta: o.nazwa,
-                    data: new Date(o.dataStr),
+                    data: dataPunktu,
                     wartosc: o.wartosc,
-                    xirr: xirr,
-                    realny: xirr - o.inflacja
+                    xirr: wyliczonyXirr,
+                    realny: wyliczonyXirr - o.inflacja
                 };
             }).sort((a, b) => a.data - b.data);
 
@@ -624,7 +641,7 @@
             const marginesY = 25;
 
             const szerWykresu = szerokosc - marginesX - 25;
-            const wysWykresu = window.innerHeight ? 115 : 115; 
+            const wysWykresu = 115; 
 
             let ścieżkaKrzywej = "";
             let siatkaPionowa = "";
@@ -659,6 +676,7 @@
                 </svg>
             `;
         }
+
         function obliczWszystko() {
             let sumy = {
                 poduszka: { nominal: 0, aktualna: 0 },
