@@ -6,7 +6,7 @@
     <title>Centrum Dowodzenia Finansami Domowymi</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -21,7 +21,6 @@
             --border-color: #e2e8f0;
             --primary-navy: #1e3a8a;
             --deep-navy: #0f172a;
-            --tooltip-bg: #1e293b;
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); line-height: 1.5; padding: 0; -webkit-font-smoothing: antialiased; }
         .container { max-width: 640px; margin: 0 auto; padding: 0 12px 32px 12px; }
@@ -29,120 +28,74 @@
         .header-grid { display: flex; justify-content: space-between; align-items: center; max-width: 640px; margin: 0 auto; position: relative; }
         .header-content { flex: 1; text-align: center; padding-left: 36px; }
         .header-content h1 { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
-        
         .meta-date-area { font-size: 13px; color: #93c5fd; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
         .meta-date-area:hover { background-color: rgba(255,255,255,0.1); color: #ffffff; }
-        .meta-date-area svg { opacity: 0.7; }
-        
         .io-buttons-stack { display: flex; flex-direction: column; gap: 4px; margin-left: 12px; }
-        .btn-io { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; width: 24px; height: 24px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: inherit; }
+        .btn-io { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; width: 24px; height: 24px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-io:hover { background: rgba(255,255,255,0.25); border-color: #ffffff; }
-
         .quote-bookish { text-align: center; margin: 24px auto; padding: 0 30px; max-width: 500px; }
         .quote-bookish .quote-content { font-size: 13px; font-style: italic; color: #475569; line-height: 1.7; position: relative; padding: 8px 0; }
-        .quote-bookish .quote-content::before { content: ""; display: block; width: 40px; height: 1px; background-color: #cbd5e1; margin: 0 auto 10px auto; }
-        .quote-bookish .quote-content::after { content: ""; display: block; width: 40px; height: 1px; background-color: #cbd5e1; margin: 10px auto 0 auto; }
+        .quote-bookish .quote-content::before, .quote-bookish .quote-content::after { content: ""; display: block; width: 40px; height: 1px; background-color: #cbd5e1; margin: 10px auto; }
         .quote-bookish strong { font-style: normal; font-weight: 500; color: var(--text-main); display: block; font-size: 11px; text-transform: uppercase; margin-top: 8px; letter-spacing: 1px; }
-        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01); }
-        .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); padding-bottom: 8px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.3px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); padding-bottom: 8px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; }
         .asset-tile { background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
         .asset-tile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .asset-tile-title { font-size: 14px; font-weight: 600; color: var(--primary-navy); }
-        .asset-badge { font-size: 10px; font-weight: 700; background-color: #1e3a8a; color: #ffffff; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .asset-badge { font-size: 10px; font-weight: 700; background-color: #1e3a8a; color: #ffffff; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
         .asset-row-input { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .asset-row-input:last-child { margin-bottom: 0; }
         .asset-label { font-size: 12px; color: var(--text-muted); }
         .asset-field-wrapper { width: 120px; }
-        .asset-field-wrapper input { width: 100%; padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; text-align: right; outline: none; color: var(--text-main); font-family: inherit; }
-        .asset-field-wrapper input:focus { border-color: var(--accent-orange); }
+        .asset-field-wrapper input { width: 100%; padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; text-align: right; outline: none; }
         .asset-field-wrapper input[readonly] { background-color: #f1f5f9; color: #475569; font-weight: 500; cursor: not-allowed; }
         .ppk-divider { margin: 20px 0 16px 0; border-top: 2px dashed var(--border-color); }
         .form-row-popup { background-color: #f8fafc; border: 1px dashed var(--accent-orange); border-radius: 8px; padding: 12px; margin-bottom: 12px; display: none; }
         .form-row-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
         .form-group-custom label { display: block; font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 2px; }
-        .form-group-custom input, .form-group-custom select { width: 100%; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; }
-        .form-group-custom input:focus, .form-group-custom select:focus { border-color: var(--accent-orange); }
-        
-        .form-actions-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
-        .form-actions-row .btn-cancel { flex: 0 0 30%; background-color: #e2e8f0; color: #475569; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; }
-        .form-actions-row .btn-cancel:hover { background-color: #cbd5e1; }
-        .form-actions-row .btn-save-orange { flex: 1; background-color: var(--accent-orange); color: #ffffff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; }
-        .form-actions-row .btn-save-orange:hover { background-color: var(--accent-orange-hover); }
-        
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 12px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .form-group-custom input, .form-group-custom select { width: 100%; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; outline: none; }
+        .form-actions-row { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-cancel { flex: 0 0 30%; background-color: #e2e8f0; color: #475569; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .btn-save-orange { flex: 1; background-color: var(--accent-orange); color: #ffffff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        th { color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+        th { color: var(--text-muted); font-weight: 500; }
         .text-success { color: var(--accent-green); font-weight: 600; }
         .text-danger { color: var(--accent-red); font-weight: 600; }
         .progress-container { margin-bottom: 14px; }
         .progress-info { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
         .progress-bar-bg { width: 100%; height: 5px; background-color: var(--border-color); border-radius: 10px; overflow: hidden; }
-        .progress-bar-fill { height: 5px; background-color: var(--accent-orange); width: 0%; transition: width 0.3s ease; }
+        .progress-bar-fill { height: 5px; background-color: var(--accent-orange); width: 0%; transition: width 0.3s; }
         .slider-group { margin-bottom: 14px; }
         .slider-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-orange); cursor: pointer; transition: transform 0.1s ease; }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-                isplay: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: help; margin-left: 6px; vertical-align: middle; font-style: normal; position: relative; }
-        .tooltip-trigger:hover .tooltip-box { display: block; }
-        .tooltip-box { position: absolute; background-color: var(--tooltip-bg); color: #ffffff; padding: 10px 12px; border-radius: 6px; font-size: 11px; line-height: 1.4; width: 220px; z-index: 9999; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); display: none; font-weight: 400; white-space: normal; top: 24px; left: 50%; transform: translateX(-50%); }
-        .tooltip-box::after { content: ""; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: transparent transparent var(--tooltip-bg) transparent; }
-        .tooltip-left .tooltip-box { left: auto; right: 0; transform: translateX(0); }
-        .tooltip-left .tooltip-box::after { left: auto; right: 10px; transform: translateX(0); }
-
-        .btn-delete, .btn-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; }
-        .btn-delete:hover { color: var(--accent-red); background-color: #fef2f2; }
-        .btn-edit:hover { color: var(--accent-orange); background-color: #fff7ed; }
-        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-orange); cursor: pointer; }
+        .btn-delete, .btn-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; font-size: 14px; }
+        .btn-delete:hover { color: var(--accent-red); }
+        .btn-edit:hover { color: var(--accent-orange); }
+        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .summary-item { background-color: var(--bg-page); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .summary-item-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-        .summary-item-value { font-size: 14px; font-weight: 600; color: var(--text-main); margin-top: 2px; }
-        .btn-action { background: #1e3a8a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; transition: background-color 0.2s ease; display: block; text-align: center; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .btn-action:hover { background: #172554; }
+        .summary-item-label { font-size: 11px; color: var(--text-muted); }
+        .summary-item-value { font-size: 14px; font-weight: 600; margin-top: 2px; }
+        .btn-action { background: #1e3a8a; color: #ffffff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; display: block; text-align: center; text-decoration: none; }
         .chart-box-wrapper { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 14px; }
         .chart-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .chart-select-custom { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background: #ffffff; color: var(--text-main); outline: none; font-family: inherit; font-weight: 500; }
+        .chart-select-custom { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background: #ffffff; outline: none; }
     </style>
 </head>
 <body>
     <input type="file" id="file-import-json" style="display: none;" accept=".json" onchange="obslugaPlikuImportu(this)">
-
     <div class="header-wrapper">
         <div class="header-grid">
             <div class="header-content">
                 <h1>Centrum Dowodzenia Finansami</h1>
-                <div class="meta-date-area" onclick="edytujDateNaglowka()" title="Kliknij, aby zmienić datę stanu majątku">
+                <div class="meta-date-area" onclick="edytujDateNaglowka()">
                     <span>Stan na dzień: <span id="lbl-data-stanu">28.08.2026</span></span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                 </div>
             </div>
             <div class="io-buttons-stack">
-                <button class="btn-io" onclick="uruchomImportJSON()" title="[I] Importuj kopię zapasową">I</button>
-                <button class="btn-io" onclick="eksportujDaneDoJSON()" title="[E] Eksportuj kopię bezpieczeństwa">E</button>
-            </div>
-        </div>
-    </div>
-        .chart-box-wrapper { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 14px; }
-        .chart-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .chart-select-custom { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background: #ffffff; color: var(--text-main); outline: none; font-family: inherit; font-weight: 500; }
-    </style>
-</head>
-<body>
-    <input type="file" id="file-import-json" style="display: none;" accept=".json" onchange="obslugaPlikuImportu(this)">
-
-    <div class="header-wrapper">
-        <div class="header-grid">
-            <div class="header-content">
-                <h1>Centrum Dowodzenia Finansami</h1>
-                <div class="meta-date-area" onclick="edytujDateNaglowka()" title="Kliknij, aby zmienić datę stanu majątku">
-                    <span>Stan na dzień: <span id="lbl-data-stanu">28.08.2026</span></span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                </div>
-            </div>
-            <div class="io-buttons-stack">
-                <button class="btn-io" onclick="uruchomImportJSON()" title="[I] Importuj kopię zapasową">I</button>
-                <button class="btn-io" onclick="eksportujDaneDoJSON()" title="[E] Eksportuj kopię bezpieczeństwa">E</button>
+                <button class="btn-io" onclick="uruchomImportJSON()">I</button>
+                <button class="btn-io" onclick="eksportujDaneDoJSON()">E</button>
             </div>
         </div>
     </div>
@@ -154,7 +107,6 @@
                 <strong>Warren Buffett</strong>
             </div>
         </div>
-
         <!-- 1. STAN MAJĄTKU I WYNIKI -->
         <div class="card">
             <h2>1. Stan majątku i wyniki</h2>
@@ -172,11 +124,11 @@
                     <div class="summary-item-value" id="lbl-zysk-strata">0,00 zł</div>
                 </div>
                 <div class="summary-item">
-                    <div class="summary-item-label">Stopa zwrotu</div>
+                    <div class="summary-item-label">Stopa zwrotu (prosta)</div>
                     <div class="summary-item-value" id="lbl-stopa-zwrotu">0,00%</div>
                 </div>
                 <div class="summary-item">
-                    <div class="summary-item-label">Średnia miesięczna dopłata (auto)</div>
+                    <div class="summary-item-label">Średnia miesięczna dopłata</div>
                     <div class="summary-item-value text-success" id="lbl-srednia-doplata">0,00 zł</div>
                 </div>
                 <div class="summary-item">
@@ -192,7 +144,6 @@
                 <span>2. Składniki portfela</span>
                 <span id="toggle-icon-dzial2" style="font-size: 11px; color: var(--text-muted);">▲</span>
             </h2>
-            
             <div id="content-dzial2" style="display: block;">
                 <div class="asset-tile">
                     <div class="asset-tile-header">
@@ -227,7 +178,7 @@
                 <div class="asset-tile">
                     <div class="asset-tile-header">
                         <span class="asset-tile-title">Komponent rynkowy</span>
-                        <span class="asset-badge">ETF / Akcje (IKE)</span>
+                        <span class="asset-badge">ETF / Akcje</span>
                     </div>
                     <div class="asset-row-input">
                         <span class="asset-label">Wartość nominalna</span>
@@ -243,35 +194,33 @@
 
                 <div class="asset-tile" style="border-color: #cbd5e1; background-color: #f8fafc;">
                     <div class="asset-tile-header">
-                        <span class="asset-tile-title" style="color: var(--deep-navy);">Środki Emerytalne (PPK)</span>
+                        <span class="asset-tile-title">Środki Emerytalne (PPK)</span>
                         <span class="asset-badge" style="background-color: #475569;">PPK</span>
                     </div>
                     <div class="asset-row-input" style="margin-bottom: 10px;">
                         <span class="asset-label">Michał (PPK) - Wartość aktualna</span>
-                        <div class="asset-field-wrapper"><input type="number" id="akt-ppk-michal" value="0.00" step="0.01" oninput="obliczWszystko()"></div>
+                        <div class="asset-field-wrapper"><input type="number" id="akt-ppk-michal" value="4500.00" step="0.01" oninput="obliczWszystko()"></div>
                     </div>
                     <div class="asset-row-input">
                         <span class="asset-label">Marta (PPK) - Wartość aktualna</span>
-                        <div class="asset-field-wrapper"><input type="number" id="akt-ppk-marta" value="0.00" step="0.01" oninput="obliczWszystko()"></div>
+                        <div class="asset-field-wrapper"><input type="number" id="akt-ppk-marta" value="3800.00" step="0.01" oninput="obliczWszystko()"></div>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- 3. REALIZACJA CELU I ALOKACJA -->
         <div class="card" id="card-dzial3">
             <h2 onclick="toggleSekcje('dzial3')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                 <span>3. Realizacja celu i alokacja</span>
                 <span id="toggle-icon-dzial3" style="font-size: 11px; color: var(--text-muted);">▲</span>
             </h2>
-            
             <div id="content-dzial3" style="display: block;">
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Globalny cel finansowy</span>
                         <span style="font-weight: 600;" id="lbl-global-cel">0 zł</span>
                     </div>
-                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="100000" oninput="obliczWszystko()">
+                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="obliczWszystko()">
                 </div>
 
                 <div class="progress-container" style="margin-top: 20px; margin-bottom: 24px;">
@@ -284,50 +233,43 @@
                     </div>
                 </div>
 
-                <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Wagi docelowe klas aktywów:</div>
+                <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase;">Wagi docelowe:</div>
 
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Poduszka bezpieczeństwa (cel)</span>
-                        <span id="lbl-target-poduszka">33%</span>
+                        <span id="lbl-target-poduszka">30%</span>
                     </div>
-                    <input type="range" id="cfg-target-poduszka" min="0" max="100" value="33" oninput="dostosujSuwaki('poduszka')">
-                    <div class="progress-info" style="margin-top: 4px; font-size: 12px;">
-                        <span id="dev-poduszka" style="color: var(--primary-navy); font-weight: 600;">Poduszka bezpieczeństwa — Odchylenie: 0.00%</span>
-                    </div>
+                    <input type="range" id="cfg-target-poduszka" min="0" max="100" value="30" oninput="dostosujSuwaki('poduszka')">
+                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-poduszka"></div>
                 </div>
 
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Portfel długoterminowy (cel)</span>
-                        <span id="lbl-target-bezpieczny">34%</span>
+                        <span id="lbl-target-bezpieczny">40%</span>
                     </div>
-                    <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="34" oninput="dostosujSuwaki('bezpieczny')">
-                    <div class="progress-info" style="margin-top: 4px; font-size: 12px;">
-                        <span id="dev-bezpieczny" style="color: var(--primary-navy); font-weight: 600;">Portfel długoterminowy — Odchylenie: 0.00%</span>
-                    </div>
+                    <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="40" oninput="dostosujSuwaki('bezpieczny')">
+                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-bezpieczny"></div>
                 </div>
 
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Komponent rynkowy (cel)</span>
-                        <span id="lbl-target-rynkowy">33%</span>
+                        <span id="lbl-target-rynkowy">30%</span>
                     </div>
-                    <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="33" oninput="dostosujSuwaki('rynkowy')">
-                    <div class="progress-info" style="margin-top: 4px; font-size: 12px;">
-                        <span id="dev-rynkowy" style="color: var(--primary-navy); font-weight: 600;">Komponent rynkowy — Odchylenie: 0.00%</span>
-                    </div>
+                    <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="30" oninput="dostosujSuwaki('rynkowy')">
+                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-rynkowy"></div>
                 </div>
-                <div id="lbl-suma-kontrolna" style="font-size: 11px; text-align: right; color: var(--text-muted); font-weight: 500;">Suma wag: 100%</div>
             </div>
         </div>
+
         <!-- 4. HISTORIA WYNIKÓW -->
         <div class="card" id="card-dzial4">
             <h2 onclick="toggleSekcje('dzial4')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                 <span>4. Historia wyników</span>
                 <span id="toggle-icon-dzial4" style="font-size: 11px; color: var(--text-muted);">▲</span>
             </h2>
-            
             <div id="content-dzial4" style="display: block;">
                 <div id="panel-nowy-okres" class="form-row-popup">
                     <div class="form-row-grid">
@@ -349,42 +291,41 @@
                         </div>
                     </div>
                     <div class="form-actions-row">
-                        <button class="btn-action btn-cancel" onclick="anulujFormularzOkresu()">Anuluj</button>
-                        <button class="btn-action btn-save-orange" onclick="zapiszNowyOkresDoTabeli()">Zapisz okres</button>
+                        <button class="btn-cancel" onclick="anulujFormularzOkresu()">Anuluj</button>
+                        <button class="btn-save-orange" onclick="zapiszNowyOkresDoTabeli()">Zapisz okres</button>
                     </div>
                 </div>
 
                 <div class="chart-box-wrapper" id="wrapper-wykres-szczegoly" style="display: none;">
                     <div class="chart-ctrl-row">
-                        <span class="summary-item-label" style="font-weight: 600; color: var(--deep-navy);">Trend Fortecy</span>
+                        <span style="font-weight:600; font-size:13px;">Trend Fortecy</span>
                         <select class="chart-select-custom" id="sel-parametr-wykresu" onchange="renderujWykresSVG()">
                             <option value="wartosc">Wartość portfela (zł)</option>
                             <option value="xirr">Nominalny XIRR (%)</option>
-                            <option value="realny">Realny XIRR (Test siły %)</option>
+                            <option value="realny">Realny XIRR (Fisher %)</option>
                         </select>
                     </div>
-                    <div id="box-kontener-svg" style="width: 100%; height: 160px;"></div>
+                    <div id="box-kontener-svg" style="width: 100%; height: 160px; overflow: visible;"></div>
                 </div>
 
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 140px;">Okres / Data</th>
+                                <th>Okres / Data</th>
                                 <th>Wartość portfela</th>
-                                <th>XIRR <span class="tooltip-trigger">ⓘ<span class="tooltip-box"><strong>XIRR:</strong> Roczna stopa zwrotu wyliczana dynamicznie na bazie dat Twoich wpłat.</span></span></th>
-                                <th style="width: 70px;">Inflacja</th>
-                                <th class="tooltip-left">Realny <span class="tooltip-trigger">ⓘ<span class="tooltip-box"><strong>Realny XIRR:</strong> Wynik oczyszczony o inflację.</span></span></th>
-                                <th style="width: 65px; text-align: center;">Akcja</th>
+                                <th>XIRR (Roczny)</th>
+                                <th>Inflacja</th>
+                                <th>Realny (Fisher)</th>
+                                <th style="text-align: center; width: 75px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="history-rows"></tbody>
                     </table>
                 </div>
-                <button id="btn-pokaz-form" class="btn-action" onclick="pokazFormularzOkresu()">Dodaj okres</button>
+                <button id="btn-pokaz-form" class="btn-action" onclick="pokazFormularzOkresu()" style="margin-bottom: 12px;">Dodaj okres</button>
             </div>
         </div>
-
         <!-- 5. LIMITY ROCZNE IKE -->
         <div class="card" id="card-dzial5">
             <h2 onclick="toggleSekcje('dzial5')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
@@ -396,33 +337,37 @@
                     <div class="asset-row-input" style="margin-bottom: 10px;">
                         <span class="asset-label" style="font-weight: 500;">Ustal roczny limit wpłat IKE (zł):</span>
                         <div class="asset-field-wrapper">
-                            <input type="number" id="cfg-limit-ike-reczny" value="0" oninput="obliczWszystko()">
+                            <input type="number" id="cfg-limit-ike-reczny" value="23472" oninput="obliczWszystko()">
                         </div>
                     </div>
-                    <div class="asset-row-input" style="margin-bottom: 10px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                    <div class="asset-row-input" style="border-top: 1px solid var(--border-color); padding-top: 8px; margin-bottom: 10px;">
                         <span class="asset-label">Pozostały limit wpłat na IKE</span>
-                        <div class="asset-field-wrapper"><input type="text" id="lbl-limit-ike" readonly value="0,00 zł"></div>
+                        <div class="asset-field-wrapper">
+                            <input type="text" id="lbl-limit-ike" readonly value="0,00 zł" style="font-weight:700;">
+                        </div>
                     </div>
                     <div class="asset-row-input" style="border-top: 1px solid var(--border-color); padding-top: 8px;">
-                        <span class="asset-label">Maksymalna sugerowana miesięczna wpłata</span>
-                        <div class="asset-field-wrapper"><input type="text" id="lbl-miesieczna-ike" readonly value="0,00 zł"></div>
+                        <span class="asset-label">Sugerowana miesięczna wpłata</span>
+                        <div class="asset-field-wrapper">
+                            <input type="text" id="lbl-miesieczna-ike" readonly value="0,00 zł" style="color:var(--accent-orange); font-weight:700;">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- 6. REJESTR AKTYWÓW SZCZEGÓŁOWYCH -->
         <div class="card" id="card-dzial6">
             <h2 onclick="toggleSekcje('dzial6')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                 <span>6. Rejestr Aktywów Szczegółowych</span>
                 <span id="toggle-icon-dzial6" style="font-size: 11px; color: var(--text-muted);">▲</span>
             </h2>
-            
             <div id="content-dzial6" style="display: block;">
                 <div id="panel-nowy-instrument" class="form-row-popup">
                     <div class="form-row-grid">
                         <div class="form-group-custom" style="grid-column: span 2;">
                             <label>Nazwa instrumentu</label>
-                            <input type="text" id="form-ins-nazwa" placeholder="np. Obligacje COI">
+                            <input type="text" id="form-ins-nazwa" placeholder="np. ETF iShares Core MSCI World (IKE)">
                         </div>
                         <div class="form-group-custom">
                             <label>Wartość nominalna (zł)</label>
@@ -442,8 +387,8 @@
                         </div>
                     </div>
                     <div class="form-actions-row">
-                        <button class="btn-action btn-cancel" onclick="anulujFormularzInstrumentu()">Anuluj</button>
-                        <button class="btn-action btn-save-orange" onclick="zapiszNowyInstrumentDoTabeli()">Zapisz instrument</button>
+                        <button class="btn-cancel" onclick="anulujFormularzInstrumentu()">Anuluj</button>
+                        <button class="btn-save-orange" onclick="zapiszNowyInstrumentDoTabeli()">Zapisz instrument</button>
                     </div>
                 </div>
 
@@ -452,9 +397,9 @@
                         <thead>
                             <tr>
                                 <th>Nazwa instrumentu</th>
-                                <th style="width: 100px; text-align: right;">Wartość nom.</th>
-                                <th style="width: 100px; text-align: right;">Wartość akt.</th>
-                                <th style="width: 65px; text-align: center;">Akcja</th>
+                                <th style="text-align: right; width:110px;">Wartość nom.</th>
+                                <th style="text-align: right; width:110px;">Wartość akt.</th>
+                                <th style="text-align: center; width:75px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="instrument-rows"></tbody>
@@ -470,7 +415,6 @@
                 <span>7. Rejestr Dopłat Kapitału</span>
                 <span id="toggle-icon-dzial7" style="font-size: 11px; color: var(--text-muted);">▲</span>
             </h2>
-            
             <div id="content-dzial7" style="display: block;">
                 <div id="panel-nowa-doplata" class="form-row-popup">
                     <div class="form-row-grid">
@@ -488,8 +432,8 @@
                         </div>
                     </div>
                     <div class="form-actions-row">
-                        <button class="btn-action btn-cancel" onclick="anulujFormularzDoplaty()">Anuluj</button>
-                        <button id="btn-dop-zapisz-submit" class="btn-action btn-save-orange" onclick="zapiszNowaDoplateDoTabeli()">Zapisz dopłatę</button>
+                        <button class="btn-cancel" onclick="anulujFormularzDoplaty()">Anuluj</button>
+                        <button id="btn-dop-zapisz-submit" class="btn-save-orange" onclick="zapiszNowaDoplateDoTabeli()">Zapisz dopłatę</button>
                     </div>
                 </div>
 
@@ -499,8 +443,8 @@
                             <tr>
                                 <th>Data wpłaty</th>
                                 <th>Cel inwestycyjny</th>
-                                <th style="text-align: right; width: 100px;">Kwota</th>
-                                <th style="width: 65px; text-align: center;">Akcja</th>
+                                <th style="text-align: right; width: 110px;">Kwota</th>
+                                <th style="text-align: center; width: 75px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="doplaty-rows"></tbody>
@@ -511,12 +455,12 @@
         </div>
     </div>
     <script>
-        // OSTATECZNA BAZA DANYCH STARTOWYCH ZGODNIE Z METODOLOGIĄ FORTECY
+        // TRWAŁE, WBUDOWANE REJESTRY I HISTORIA STARTOWA
         let rejestrAktywówStart = [
-            { nazwa: "Obligacje COI (Portfel długoterminowy)", nominal: 60000, aktualna: 62400, klasa: "bezpieczny" },
-            { nazwa: "Obligacje TOS (Portfel długoterminowy)", nominal: 40000, aktualna: 41200, klasa: "bezpieczny" },
-            { nazwa: "Konto Oszczędnościowe (Poduszka)", nominal: 31000, aktualna: 31000, klasa: "poduszka" },
-            { nazwa: "ETF iShares Core MSCI World (IKE)", nominal: 35000, aktualna: 39100, klasa: "rynkowy" }
+            { id: 1, nazwa: "Obligacje COI (Portfel długoterminowy)", nominal: 60000, aktualna: 62400, klasa: "bezpieczny" },
+            { id: 2, nazwa: "Obligacje TOS (Portfel długoterminowy)", nominal: 40000, aktualna: 41200, klasa: "bezpieczny" },
+            { id: 3, nazwa: "Konto Oszczędnościowe (Poduszka)", nominal: 31000, aktualna: 31000, klasa: "poduszka" },
+            { id: 4, nazwa: "ETF iShares Core MSCI World (IKE)", nominal: 35000, aktualna: 39100, klasa: "rynkowy" }
         ];
 
         let rejestrDoplatStart = [
@@ -545,7 +489,6 @@
             if (document.getElementById('form-data-okresu')) document.getElementById('form-data-okresu').value = formatDaty;
             if (document.getElementById('form-dop-data')) document.getElementById('form-dop-data').value = formatDaty;
         }
-
         function zaladujDane() {
             const zapisanaData = localStorage.getItem('finanse_data_stanu');
             globalnaDataStanu = zapisanaData || "28.08.2026";
@@ -593,7 +536,7 @@
                 r: document.getElementById('cfg-target-rynkowy').value
             }));
         }
-        // 1. DYNAMICZNY SILNIK FINANSOWY XIRR (METODA NEWTONA-RAPHSONA)
+
         function obliczXIRR(przeplywy) {
             if (przeplywy.length < 2) return 0;
             let maDodatnie = false, maUjemne = false;
@@ -606,8 +549,6 @@
             let stopa = 0.1;
             const maxIteracji = 100;
             const precyzja = 1e-6;
-            
-            // Punkt zero to zawsze chronologicznie pierwsza wpłata z przefiltrowanego zestawu
             const dataPocz = new Date(przeplywy[0].data);
 
             for (let i = 0; i < maxIteracji; i++) {
@@ -630,27 +571,29 @@
             return 0;
         }
 
-        // 2. DYNAMICZNE GENEROWANIE PRZEPŁYWÓW WYŁĄCZNIE NA PODSTAWIE DZIAŁU 7
+        function obliczFishera(nominalnyXirr, inflacjaOkresu) {
+            const rNom = nominalnyXirr / 100;
+            const inf = inflacjaOkresu / 100;
+            return ((1 + rNom) / (1 + inf) - 1) * 100;
+        }
+
+        // KRYTYCZNIE ODPORNY SILNIK PRZEPŁYWÓW: Zabezpieczony przed pustymi polami i NaN
         function pobierzPrzeplywyDlaOkresu(dataKluczowaStr, wartoscKoncowa) {
             let przeplywy = [];
-            const limitData = new Date(dataKluczowaStr);
 
-            // Pobieramy wszystkie dopłaty wpisane w rejestrze (Dział 7) do dnia sprawdzanego okresu włącznie
             rejestrDoplat.forEach(dop => {
-                const dataDop = new Date(dop.dataStr);
-                if (dataDop <= limitData) {
-                    przeplywy.push({ data: dop.dataStr, kwota: -dop.kwota }); // Wpłata to ujemny przepływ (wydatek portfela)
+                if (dop && dop.dataStr && dataKluczowaStr && dop.dataStr <= dataKluczowaStr) {
+                    przeplywy.push({ data: dop.dataStr, kwota: -dop.kwota });
                 }
             });
 
-            // Dopisujemy końcową wartość portfela jako wirtualny zwrot (wartość dodatnia)
-            przeplywy.push({ data: dataKluczowaStr, kwota: wartoscKoncowa });
-            
-            // Sortujemy chronologicznie, aby punkt zero był zawsze najwcześniejszą wpłatą w Dziale 7
-            przeplywy.sort((a, b) => new Date(a.data) - new Date(b.data));
+            przeplywy.push({ data: dataKluczowaStr || "2026-08-28", kwota: wartoscKoncowa });
+            przeplywy.sort((a, b) => {
+                if (!a.data || !b.data) return 0;
+                return a.data.localeCompare(b.data);
+            });
             return przeplywy;
         }
-        // 3. NOWY, INTERAKTYWNY SILNIK WYKRESU SVG
         function renderujWykresSVG() {
             const wrapper = document.getElementById('wrapper-wykres-szczegoly');
             const kontener = document.getElementById('box-kontener-svg');
@@ -663,14 +606,15 @@
 
             let punkty = historiaOkresow.map(o => {
                 const przeplywy = pobierzPrzeplywyDlaOkresu(o.dataStr, o.wartosc);
-                const xirrRealny = obliczXIRR(przeplywy);
+                const xirrNominalny = obliczXIRR(przeplywy);
+                const xirrRealnyFisher = obliczFishera(xirrNominalny, o.inflacja);
 
                 return {
                     etykieta: o.nazwa,
                     data: new Date(o.dataStr),
                     wartosc: o.wartosc,
-                    xirr: xirrRealny,
-                    realny: xirrRealny - o.inflacja
+                    xirr: xirrNominalny,
+                    realny: xirrRealnyFisher
                 };
             }).sort((a, b) => a.data - b.data);
 
@@ -689,7 +633,7 @@
             const szerWykresu = szerokosc - marginesX - 25;
             const wysWykresu = 115; 
 
-            let ścieżkaKrzywej = "";
+            let sciezkaKrzywej = "";
             let siatkaPionowa = "";
             let etykietyOsiX = "";
             let wezlyKropek = "";
@@ -698,16 +642,16 @@
                 const x = marginesX + (idx * (szerWykresu / (punkty.length - 1)));
                 const y = wysokosc - marginesY - (((p[parametr] - minY) / (maxY - minY)) * wysWykresu);
 
-                if (idx === 0) { ścieżkaKrzywej += `M ${x} ${y}`; } 
-                else { ścieżkaKrzywej += ` L ${x} ${y}`; }
+                if (idx === 0) { sciezkaKrzywej += `M ${x} ${y}`; } 
+                else { sciezkaKrzywej += ` L ${x} ${y}`; }
 
                 siatkaPionowa += `<line x1="${x}" y1="15" x2="${x}" y2="${wysokosc - marginesY}" stroke="#e2e8f0" stroke-dasharray="2,2" />`;
                 etykietyOsiX += `<text x="${x}" y="${wysokosc - 6}" font-size="10" font-family="inherit" fill="#64748b" text-anchor="middle" font-weight="500">${p.etykieta}</text>`;
                 wezlyKropek += `<circle cx="${x}" cy="${y}" r="4" fill="#f97316" stroke="#ffffff" stroke-width="1.5"/>`;
             });
 
-            const etykietaMin = parametr === 'wartosc' ? formatujWalute(minY) : minY.toFixed(1) + "%";
-            const etykietaMax = parametr === 'wartosc' ? formatujWalute(maxY) : maxY.toFixed(1) + "%";
+            const etykietaMin = parametr === 'wartosc' ? formatujWalute(minY) : minY.toFixed(2) + "%";
+            const etykietaMax = parametr === 'wartosc' ? formatujWalute(maxY) : maxY.toFixed(2) + "%";
 
             kontener.innerHTML = `
                 <svg width="100%" height="${wysokosc}" viewBox="0 0 ${szerokosc} ${wysokosc}" style="overflow: visible;">
@@ -717,12 +661,11 @@
                     <text x="${marginesX - 8}" y="19" font-size="10" font-family="inherit" fill="#64748b" text-anchor="end">${etykietaMax}</text>
                     <text x="${marginesX - 8}" y="${wysokosc - marginesY + 4}" font-size="10" font-family="inherit" fill="#64748b" text-anchor="end">${etykietaMin}</text>
                     ${etykietyOsiX}
-                    <path d="${ścieżkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="${sciezkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                     ${wezlyKropek}
                 </svg>
             `;
         }
-
         function toggleSekcje(id) {
             const content = document.getElementById('content-' + id);
             const icon = document.getElementById('toggle-icon-' + id);
@@ -804,7 +747,6 @@
             if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatujWalute(sumy.bezpieczny.aktualna);
             if(document.getElementById('nom-rynkowy')) document.getElementById('nom-rynkowy').value = formatujWalute(sumy.rynkowy.nominal);
             if(document.getElementById('akt-rynkowy')) document.getElementById('akt-rynkowy').value = formatujWalute(sumy.rynkowy.aktualna);
-            
             const aktPpkMichal = parseFloat(document.getElementById('akt-ppk-michal').value) || 0;
             const aktPpkMarta = parseFloat(document.getElementById('akt-ppk-marta').value) || 0;
 
@@ -818,123 +760,36 @@
             let sumaNowychDoplat = 0;
             let unikalneMiesiace = new Set();
             rejestrDoplat.forEach(dop => {
-                if (new Date(dop.dataStr) >= new Date("2026-09-01")) {
-                    sumaNowychDoplat += dop.kwota;
-                    unikalneMiesiace.add(dop.dataStr.substring(0, 7));
-                }
+                sumaNowychDoplat += dop.kwota;
+                if (dop.dataStr) unikalneMiesiace.add(dop.dataStr.substring(0, 7));
             });
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, unikalneMiesiace.size)) : 0;
 
+            // CAŁKOWICIE NIEZALEŻNY, BEZPROGOWY I ODPORNY NA STREFY CZASOWE SILNIK IKE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
-            const dzis = new Date();
-            rejestrDoplat.forEach(dop => {
-                if (new Date(dop.dataStr).getFullYear() === dzis.getFullYear()) {
-                    const powiazanyInstrument = rejestrAktywów.find(ins => ins.nazwa === dop.cel);
-                    if (powiazanyInstrument && powiazanyInstrument.klasa === 'rynkowy') wykorzystanyLimitIkeBiezacyRok += dop.kwota;
-                }
-            });
-            const pozostalyLimitIke = rocznyLimitIke - wykorzystanyLimitIkeBiezacyRok;
-            const sugerowanaMiesiecznaWplataIke = pozostalyLimitIke > 0 ? pozostalyLimitIke / Math.max(1, (12 - dzis.getMonth())) : 0;
-
-            document.getElementById('lbl-wklad-nominalny').innerText = formatujWalute(lacznyWkladNominalny);
-            document.getElementById('lbl-wartosc-biezaca').innerText = formatujWalute(lacznaWartoscBiezaca);
-            document.getElementById('lbl-srednia-doplata').innerText = formatujWalute(sredniaMiesiecznaDoplata);
-            document.getElementById('lbl-limit-ike').value = formatujWalute(Math.max(0, pozostalyLimitIke));
-            document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
             
-            document.getElementById('lbl-zysk-strata').innerText = formatujWalute(zyskStrata);
-            document.getElementById('lbl-zysk-strata').className = zyskStrata >= 0 ? "summary-item-value text-success" : "summary-item-value text-danger";
-            document.getElementById('lbl-stopa-zwrotu').innerText = stopaZwrotu.toFixed(2) + "%";
-            document.getElementById('lbl-stopa-zwrotu').className = stopaZwrotu >= 0 ? "summary-item-value text-success" : "summary-item-value text-danger";
-            document.getElementById('lbl-majatek-ppk').innerText = formatujWalute(majatekZPPK);
-
-            const globalCel = parseFloat(document.getElementById('cfg-global-cel').value) || 0;
-            document.getElementById('lbl-global-cel').innerText = formatujWalute(globalCel);
-            let postepCel = globalCel > 0 ? Math.min(100, Math.round((lacznaWartoscBiezaca / globalCel) * 100)) : 0;
-            document.getElementById('lbl-global-progress').innerText = postepCel + "%";
-            document.getElementById('bar-global-progress').style.width = postepCel + "%";
-
-            const targetP = parseFloat(document.getElementById('cfg-target-poduszka').value) || 0;
-            const targetB = parseFloat(document.getElementById('cfg-target-bezpieczny').value) || 0;
-            const targetR = parseFloat(document.getElementById('cfg-target-rynkowy').value) || 0;
-
-            ustawOdchylenie('dev-poduszka', "Poduszka bezpieczeństwa", (lacznyWkladNominalny > 0 ? (sumy.poduszka.nominal / lacznyWkladNominalny) * 100 : 0) - targetP);
-            ustawOdchylenie('dev-bezpieczny', "Portfel długoterminowy", (lacznyWkladNominalny > 0 ? (sumy.bezpieczny.nominal / lacznyWkladNominalny) * 100 : 0) - targetB);
-            ustawOdchylenie('dev-rynkowy', "Komponent rynkowy", (lacznyWkladNominalny > 0 ? (sumy.rynkowy.nominal / lacznyWkladNominalny) * 100 : 0) - targetR);
-
-            odswiezOpcjeCeluWDoplatach();
-            renderujWykresSVG();
-            zapiszDoLocalStorage();
-        }
-        function obliczWszystko() {
-            let sumy = {
-                poduszka: { nominal: 0, aktualna: 0 },
-                bezpieczny: { nominal: 0, aktualna: 0 },
-                rynkowy: { nominal: 0, aktualna: 0 }
-            };
-
-            const tbodyIns = document.getElementById('instrument-rows');
-            if (tbodyIns) {
-                tbodyIns.innerHTML = "";
-                rejestrAktywów.forEach((ins, index) => {
-                    sumy[ins.klasa].nominal += ins.nominal;
-                    sumy[ins.klasa].aktualna += ins.aktualna;
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${ins.nazwa}</strong></td>
-                        <td style="text-align: right;">${formatujWalute(ins.nominal)}</td>
-                        <td style="text-align: right; font-weight: 500;">${formatujWalute(ins.aktualna)}</td>
-                        <td style="text-align: center; white-space: nowrap;">
-                            <button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                            </button>
-                            <button class="btn-delete" onclick="usunInstrument(${index})">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                            </button>
-                        </td>
-                    `;
-                    tbodyIns.appendChild(tr);
-                });
+            let rokZNaglowkaStr = "2026";
+            if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
+                let czesciDaty = globalnaDataStanu.split('.');
+                rokZNaglowkaStr = czesciDaty[czesciDaty.length - 1].trim();
             }
 
-            if(document.getElementById('nom-poduszka')) document.getElementById('nom-poduszka').value = formatujWalute(sumy.poduszka.nominal);
-            if(document.getElementById('akt-poduszka')) document.getElementById('akt-poduszka').value = formatujWalute(sumy.poduszka.aktualna);
-            if(document.getElementById('nom-bezpieczny')) document.getElementById('nom-bezpieczny').value = formatujWalute(sumy.bezpieczny.nominal);
-            if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatujWalute(sumy.bezpieczny.aktualna);
-            if(document.getElementById('nom-rynkowy')) document.getElementById('nom-rynkowy').value = formatujWalute(sumy.rynkowy.nominal);
-            if(document.getElementById('akt-rynkowy')) document.getElementById('akt-rynkowy').value = formatujWalute(sumy.rynkowy.aktualna);
-            const aktPpkMichal = parseFloat(document.getElementById('akt-ppk-michal').value) || 0;
-            const aktPpkMarta = parseFloat(document.getElementById('akt-ppk-marta').value) || 0;
-
-            const lacznyWkladNominalny = sumy.poduszka.nominal + sumy.bezpieczny.nominal + sumy.rynkowy.nominal;
-            const lacznaWartoscBiezaca = sumy.poduszka.aktualna + sumy.bezpieczny.aktualna + sumy.rynkowy.aktualna;
-            const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
+            rejestrDoplat.forEach(dop => {
+                if (dop && dop.dataStr && dop.cel) {
+                    // Wyciągnięcie roku bezpośrednio z tekstu (np. z "2026-08-29" pobiera "2026")
+                    let rokWplatyStr = dop.dataStr.substring(0, 4);
+                    if (rokWplatyStr === rokZNaglowkaStr) {
+                        let celLower = dop.cel.toLowerCase();
+                        if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
+                            wykorzystanyLimitIkeBiezacyRok += dop.kwota;
+                        }
+                    }
+                }
+            });
             
-            let stopaZwrotu = lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0;
-            const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
-
-            let sumaNowychDoplat = 0;
-            let unikalneMiesiace = new Set();
-            rejestrDoplat.forEach(dop => {
-                if (new Date(dop.dataStr) >= new Date("2026-09-01")) {
-                    sumaNowychDoplat += dop.kwota;
-                    unikalneMiesiace.add(dop.dataStr.substring(0, 7));
-                }
-            });
-            let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, unikalneMiesiace.size)) : 0;
-
-            const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
-            let wykorzystanyLimitIkeBiezacyRok = 0;
-            const dzis = new Date();
-            rejestrDoplat.forEach(dop => {
-                if (new Date(dop.dataStr).getFullYear() === dzis.getFullYear()) {
-                    const powiazanyInstrument = rejestrAktywów.find(ins => ins.nazwa === dop.cel);
-                    if (powiazanyInstrument && powiazanyInstrument.klasa === 'rynkowy') wykorzystanyLimitIkeBiezacyRok += dop.kwota;
-                }
-            });
             const pozostalyLimitIke = rocznyLimitIke - wykorzystanyLimitIkeBiezacyRok;
+            const dzis = new Date();
             const sugerowanaMiesiecznaWplataIke = pozostalyLimitIke > 0 ? pozostalyLimitIke / Math.max(1, (12 - dzis.getMonth())) : 0;
 
             document.getElementById('lbl-wklad-nominalny').innerText = formatujWalute(lacznyWkladNominalny);
@@ -979,6 +834,7 @@
             renderujHistorie(); anulujFormularzOkresu(); obliczWszystko();
         }
 
+        // DYNAMICZNA TABELA HISTORII Z GEOMETRYCZNĄ FORMUŁĄ FISHERA
         function renderujHistorie() {
             const tbody = document.getElementById('history-rows');
             if(!tbody) return; tbody.innerHTML = "";
@@ -986,7 +842,8 @@
             historiaOkresow.forEach((okres, index) => {
                 const przeplywy = pobierzPrzeplywyDlaOkresu(okres.dataStr, okres.wartosc);
                 const wyliczonyXirr = obliczXIRR(przeplywy);
-                const wyliczonyRealnyXirr = wyliczonyXirr - okres.inflacja;
+                // MATEMATYCZNA REPREZENTACJA GEOMETRYCZNEJ FORMUŁY FISHERA
+                const wyliczonyRealnyXirr = obliczFishera(wyliczonyXirr, okres.inflacja);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1007,6 +864,7 @@
         function usunWierszHistorii(index) { if (confirm("Usunąć ten okres z historii?")) { historiaOkresow.splice(index, 1); renderujHistorie(); obliczWszystko(); } }
         function pokazFormularzInstrumentu() { edytowanyInstrumentIndex = null; document.getElementById('panel-nowy-instrument').style.display = 'block'; document.getElementById('btn-ins-pokaz-form').style.display = 'none'; }
         function anulujFormularzInstrumentu() { document.getElementById('form-ins-nazwa').value = ""; document.getElementById('form-ins-nominal').value = ""; document.getElementById('form-ins-aktualna').value = ""; edytowanyInstrumentIndex = null; document.getElementById('panel-nowy-instrument').style.display = 'none'; document.getElementById('btn-ins-pokaz-form').style.display = 'block'; }
+        
         function wczytajInstrumentDoEdycji(index) {
             const ins = rejestrAktywów[index]; edytowanyInstrumentIndex = index;
             document.getElementById('form-ins-nazwa').value = ins.nazwa; document.getElementById('form-ins-nominal').value = ins.nominal;
@@ -1020,12 +878,19 @@
             const akt = parseFloat(document.getElementById('form-ins-aktualna').value) || 0;
             const k = document.getElementById('form-ins-klasa').value;
             if (n === "" || nom <= 0 || akt <= 0) { alert("Wypełnij poprawnie pola instrumentu!"); return; }
-            if (edytowanyInstrumentIndex !== null) rejestrAktywów[edytowanyInstrumentIndex] = { nazwa: n, nominal: nom, aktualna: akt, klasa: k };
-            else rejestrAktywów.push({ nazwa: n, nominal: nom, aktualna: akt, klasa: k });
+            if (edytowanyInstrumentIndex !== null) rejestrAktywów[edytowanyInstrumentIndex] = { id: rejestrAktywów[edytowanyInstrumentIndex].id, nazwa: n, nominal: nom, aktualna: akt, klasa: k };
+            else rejestrAktywów.push({ id: Date.now(), nazwa: n, nominal: nom, aktualna: akt, klasa: k });
             anulujFormularzInstrumentu(); obliczWszystko();
         }
 
         function usunInstrument(index) { if (confirm("Usunąć ten składnik majątku?")) { rejestrAktywów.splice(index, 1); obliczWszystko(); } }
+        function wczytajOkresDoEdycji(index) {
+            const okr = historiaOkresow[index]; edytowanyOkresIndex = index;
+            document.getElementById('form-nazwa-okresu').value = okr.nazwa; document.getElementById('form-data-okresu').value = okr.dataStr;
+            document.getElementById('form-wartosc-portfela').value = okr.wartosc; document.getElementById('form-inflacja').value = okr.inflacja;
+            document.getElementById('panel-nowy-okres').style.display = 'block'; document.getElementById('btn-pokaz-form').style.display = 'none';
+        }
+        // DZIAŁ 7: OPERACJE NA REJESTRZE DOPŁAT KAPITAŁU (ZABEZPIECZONE PRZED BLOKADAMI)
         function pokazFormularzDoplaty() { edytowanaDoplataIndex = null; document.getElementById('panel-nowa-doplata').style.display = 'block'; document.getElementById('btn-dop-pokaz-form').style.display = 'none'; }
         function anulujFormularzDoplaty() { document.getElementById('form-dop-kwota').value = ""; edytowanaDoplataIndex = null; document.getElementById('panel-nowa-doplata').style.display = 'none'; document.getElementById('btn-dop-pokaz-form').style.display = 'block'; }
 
@@ -1042,22 +907,31 @@
             else rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
             renderujDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
         }
+
         function renderujDoplaty() {
             const tbody = document.getElementById('doplaty-rows');
             if(!tbody) return; tbody.innerHTML = "";
-            rejestrDoplat.sort((a, b) => new Date(a.dataStr) - new Date(b.dataStr));
+            
+            // Krytycznie bezpieczne sortowanie chronologiczne uodpornione na puste lub uszkodzone pola
+            rejestrDoplat.sort((a, b) => {
+                if (!a || !a.dataStr || !b || !b.dataStr) return 0;
+                return a.dataStr.localeCompare(b.dataStr);
+            });
+
             rejestrDoplat.forEach((dop, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${dop.dataStr}</strong></td>
-                    <td><span style="font-size:12px;color:var(--text-muted);">${dop.cel}</span></td>
-                    <td style="text-align:right;font-weight:500;">${formatujWalute(dop.kwota)}</td>
-                    <td style="text-align:center; white-space:nowrap;">
-                        <button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-                        <button class="btn-delete" onclick="usunDoplate(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                if (dop) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${dop.dataStr || ""}</strong></td>
+                        <td><span style="font-size:12px;color:var(--text-muted);">${dop.cel || ""}</span></td>
+                        <td style="text-align:right;font-weight:500;">${formatujWalute(dop.kwota || 0)}</td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+                            <button class="btn-delete" onclick="usunDoplate(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             });
         }
 
@@ -1067,10 +941,11 @@
             const selectCel = document.getElementById('form-dop-cel-instrument');
             if (!selectCel) return; const wybrana = selectCel.value; selectCel.innerHTML = "";
             if (rejestrAktywów.length === 0) { selectCel.innerHTML = "<option value=''>[Najpierw dodaj instrument]</option>"; return; }
-            rejestrAktywów.forEach(ins => { selectCel.innerHTML += `<option value="${ins.nazwa}">${ins.nazwa}</option>`; });
+            rejestrAktywów.forEach(ins => { if(ins) selectCel.innerHTML += `<option value="${ins.nazwa}">${ins.nazwa}</option>`; });
             if (wybrana) selectCel.value = wybrana;
         }
 
+        // KOPIE ZAPASOWE JSON
         function eksportujDaneDoJSON() {
             const paczka = {
                 wersja: "1.8", dataStanu: globalnaDataStanu, aktywa: rejestrAktywów, historia: historiaOkresow, doplaty: rejestrDoplat,
@@ -1105,7 +980,12 @@
 
         function edytujDateNaglowka() {
             const d = prompt("Wpisz datę stanu majątku (np. DD.MM.YYYY):", globalnaDataStanu);
-            if(d) { globalnaDataStanu = d.trim(); document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; zapiszDoLocalStorage(); }
+            if(d) { 
+                globalnaDataStanu = d.trim(); 
+                document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; 
+                obliczWszystko(); 
+                zapiszDoLocalStorage(); 
+            }
         }
 
         window.onload = function() {
