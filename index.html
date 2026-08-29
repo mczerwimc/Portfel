@@ -50,7 +50,7 @@
         .asset-field-wrapper input[readonly] { background-color: #f1f5f9; color: #475569; font-weight: 500; cursor: not-allowed; }
         .ppk-divider { margin: 20px 0 16px 0; border-top: 2px dashed var(--border-color); }
         .form-row-popup { background-color: #f8fafc; border: 1px dashed var(--accent-orange); border-radius: 8px; padding: 12px; margin-bottom: 12px; display: none; }
-        .form-row-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
+        .form-row-popup .form-row-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
         .form-group-custom label { display: block; font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 2px; }
         .form-group-custom input, .form-group-custom select { width: 100%; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; outline: none; }
         .form-actions-row { display: flex; gap: 8px; margin-top: 8px; }
@@ -220,7 +220,7 @@
                         <span>Globalny cel finansowy</span>
                         <span style="font-weight: 600;" id="lbl-global-cel">0 zł</span>
                     </div>
-                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="obliczWszystko()">
+                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="dostosujSuwaki('cel')">
                 </div>
 
                 <div class="progress-container" style="margin-top: 20px; margin-bottom: 24px;">
@@ -577,7 +577,6 @@
             return ((1 + rNom) / (1 + inf) - 1) * 100;
         }
 
-        // KRYTYCZNIE ODPORNY SILNIK PRZEPŁYWÓW: Zabezpieczony przed pustymi polami i NaN
         function pobierzPrzeplywyDlaOkresu(dataKluczowaStr, wartoscKoncowa) {
             let przeplywy = [];
 
@@ -720,24 +719,26 @@
             if (tbodyIns) {
                 tbodyIns.innerHTML = "";
                 rejestrAktywów.forEach((ins, index) => {
-                    sumy[ins.klasa].nominal += ins.nominal;
-                    sumy[ins.klasa].aktualna += ins.aktualna;
+                    if (ins) {
+                        sumy[ins.klasa].nominal += ins.nominal || 0;
+                        sumy[ins.klasa].aktualna += ins.aktualna || 0;
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${ins.nazwa}</strong></td>
-                        <td style="text-align: right;">${formatujWalute(ins.nominal)}</td>
-                        <td style="text-align: right; font-weight: 500;">${formatujWalute(ins.aktualna)}</td>
-                        <td style="text-align: center; white-space: nowrap;">
-                            <button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                            </button>
-                            <button class="btn-delete" onclick="usunInstrument(${index})">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                            </button>
-                        </td>
-                    `;
-                    tbodyIns.appendChild(tr);
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${ins.nazwa}</strong></td>
+                            <td style="text-align: right;">${formatujWalute(ins.nominal || 0)}</td>
+                            <td style="text-align: right; font-weight: 500;">${formatujWalute(ins.aktualna || 0)}</td>
+                            <td style="text-align: center; white-space: nowrap;">
+                                <button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                </button>
+                                <button class="btn-delete" onclick="usunInstrument(${index})">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                            </td>
+                        `;
+                        tbodyIns.appendChild(tr);
+                    }
                 });
             }
 
@@ -757,29 +758,29 @@
             let stopaZwrotu = lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA WYŁĄCZNIE OD 1 WRZEŚNIA 2026 ROKU (METODOLOGIA FORTECY)
             let sumaNowychDoplat = 0;
             let unikalneMiesiace = new Set();
             rejestrDoplat.forEach(dop => {
-                sumaNowychDoplat += dop.kwota;
-                if (dop.dataStr) unikalneMiesiace.add(dop.dataStr.substring(0, 7));
+                if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
+                    sumaNowychDoplat += dop.kwota;
+                    unikalneMiesiace.add(dop.dataStr.substring(0, 7));
+                }
             });
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, unikalneMiesiace.size)) : 0;
 
-            // CAŁKOWICIE NIEZALEŻNY, BEZPROGOWY I ODPORNY NA STREFY CZASOWE SILNIK IKE
+            // 2. AUTONOMICZNY, BEZPROGOWY I NATYCHMIASTOWY SILNIK LIMITU IKE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
             
             let rokZNaglowkaStr = "2026";
-            if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
-                let czesciDaty = globalnaDataStanu.split('.');
-                rokZNaglowkaStr = czesciDaty[czesciDaty.length - 1].trim();
+            if (globalnaDataStanu && globalnaDataStanu.length >= 4) {
+                rokZNaglowkaStr = globalnaDataStanu.substring(globalnaDataStanu.length - 4);
             }
 
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.cel) {
-                    // Wyciągnięcie roku bezpośrednio z tekstu (np. z "2026-08-29" pobiera "2026")
-                    let rokWplatyStr = dop.dataStr.substring(0, 4);
-                    if (rokWplatyStr === rokZNaglowkaStr) {
+                    if (dop.dataStr.includes(rokZNaglowkaStr)) {
                         let celLower = dop.cel.toLowerCase();
                         if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
                             wykorzystanyLimitIkeBiezacyRok += dop.kwota;
@@ -912,7 +913,6 @@
             const tbody = document.getElementById('doplaty-rows');
             if(!tbody) return; tbody.innerHTML = "";
             
-            // Krytycznie bezpieczne sortowanie chronologiczne uodpornione na puste lub uszkodzone pola
             rejestrDoplat.sort((a, b) => {
                 if (!a || !a.dataStr || !b || !b.dataStr) return 0;
                 return a.dataStr.localeCompare(b.dataStr);
@@ -957,6 +957,7 @@
             link.href = url; link.download = "kopia_portfela.json"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
+        function运行ImportJSON() { uruchomImportJSON(); }
         function uruchomImportJSON() { document.getElementById('file-import-json').click(); }
 
         function obslugaPlikuImportu(input) {
