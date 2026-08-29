@@ -220,7 +220,7 @@
                         <span>Globalny cel finansowy</span>
                         <span style="font-weight: 600;" id="lbl-global-cel">0 zł</span>
                     </div>
-                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="dostosujSuwaki('cel')">
+                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="obliczWszystko()">
                 </div>
 
                 <div class="progress-container" style="margin-top: 20px; margin-bottom: 24px;">
@@ -503,13 +503,13 @@
             const zapisaneDoplaty = localStorage.getItem('finanse_doplaty');
             rejestrDoplat = (zapisaneDoplaty && JSON.parse(zapisaneDoplaty).length > 0) ? JSON.parse(zapisaneDoplaty) : [...rejestrDoplatStart];
 
-            if (localStorage.getItem('finanse_cel')) document.getElementById('cfg-global-cel').value = localStorage.getItem('finanse_cel');
-            if (localStorage.getItem('finanse_limit_ike_reczny')) document.getElementById('cfg-limit-ike-reczny').value = localStorage.getItem('finanse_limit_ike_reczny');
-            if (localStorage.getItem('finanse_ppk_michal')) document.getElementById('akt-ppk-michal').value = localStorage.getItem('finanse_ppk_michal');
-            if (localStorage.getItem('finanse_ppk_marta')) document.getElementById('akt-ppk-marta').value = localStorage.getItem('finanse_ppk_marta');
+            if (document.getElementById('cfg-global-cel') && localStorage.getItem('finanse_cel')) document.getElementById('cfg-global-cel').value = localStorage.getItem('finanse_cel');
+            if (document.getElementById('cfg-limit-ike-reczny') && localStorage.getItem('finanse_limit_ike_reczny')) document.getElementById('cfg-limit-ike-reczny').value = localStorage.getItem('finanse_limit_ike_reczny');
+            if (document.getElementById('akt-ppk-michal') && localStorage.getItem('finanse_ppk_michal')) document.getElementById('akt-ppk-michal').value = localStorage.getItem('finanse_ppk_michal');
+            if (document.getElementById('akt-ppk-marta') && localStorage.getItem('finanse_ppk_marta')) document.getElementById('akt-ppk-marta').value = localStorage.getItem('finanse_ppk_marta');
 
             const zapisaneSuwaki = localStorage.getItem('finanse_suwaki');
-            if (zapisaneSuwaki) {
+            if (zapisaneSuwaki && document.getElementById('cfg-target-poduszka')) {
                 const s = JSON.parse(zapisaneSuwaki);
                 document.getElementById('cfg-target-poduszka').value = s.p;
                 document.getElementById('cfg-target-bezpieczny').value = s.b;
@@ -526,15 +526,17 @@
             localStorage.setItem('finanse_aktywa', JSON.stringify(rejestrAktywów));
             localStorage.setItem('finanse_historia', JSON.stringify(historiaOkresow));
             localStorage.setItem('finanse_doplaty', JSON.stringify(rejestrDoplat));
-            localStorage.setItem('finanse_cel', document.getElementById('cfg-global-cel').value);
-            localStorage.setItem('finanse_limit_ike_reczny', document.getElementById('cfg-limit-ike-reczny').value);
-            localStorage.setItem('finanse_ppk_michal', document.getElementById('akt-ppk-michal').value);
-            localStorage.setItem('finanse_ppk_marta', document.getElementById('akt-ppk-marta').value);
-            localStorage.setItem('finanse_suwaki', JSON.stringify({
-                p: document.getElementById('cfg-target-poduszka').value,
-                b: document.getElementById('cfg-target-bezpieczny').value,
-                r: document.getElementById('cfg-target-rynkowy').value
-            }));
+            if (document.getElementById('cfg-global-cel')) localStorage.setItem('finanse_cel', document.getElementById('cfg-global-cel').value);
+            if (document.getElementById('cfg-limit-ike-reczny')) localStorage.setItem('finanse_limit_ike_reczny', document.getElementById('cfg-limit-ike-reczny').value);
+            if (document.getElementById('akt-ppk-michal')) localStorage.setItem('finanse_ppk_michal', document.getElementById('akt-ppk-michal').value);
+            if (document.getElementById('akt-ppk-marta')) localStorage.setItem('finanse_ppk_marta', document.getElementById('akt-ppk-marta').value);
+            if (document.getElementById('cfg-target-poduszka')) {
+                localStorage.setItem('finanse_suwaki', JSON.stringify({
+                    p: document.getElementById('cfg-target-poduszka').value,
+                    b: document.getElementById('cfg-target-bezpieczny').value,
+                    r: document.getElementById('cfg-target-rynkowy').value
+                }));
+            }
         }
 
         function obliczXIRR(przeplywy) {
@@ -545,140 +547,88 @@
                 if (p.kwota < 0) maUjemne = true;
             });
             if (!maDodatnie || !maUjemne) return 0;
-
             let stopa = 0.1;
-            const maxIteracji = 100;
-            const precyzja = 1e-6;
             const dataPocz = new Date(przeplywy[0].data);
-
-            for (let i = 0; i < maxIteracji; i++) {
-                let f_x = 0;
-                let df_x = 0;
-
+            for (let i = 0; i < 100; i++) {
+                let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
                     const d = Math.max(0, Math.ceil((new Date(przeplywy[j].data).getTime() - dataPocz.getTime()) / (1000 * 60 * 60 * 24)));
                     const odlegloscRoczna = d / 365.0;
-
                     f_x += przeplywy[j].kwota / Math.pow(1 + stopa, odlegloscRoczna);
                     df_x -= odlegloscRoczna * przeplywy[j].kwota / Math.pow(1 + stopa, odlegloscRoczna + 1);
                 }
-
                 if (Math.abs(df_x) < 1e-12) break;
                 let nowaStopa = stopa - f_x / df_x;
-                if (Math.abs(nowaStopa - stopa) < precyzja) return nowaStopa * 100;
+                if (Math.abs(nowaStopa - stopa) < 1e-6) return nowaStopa * 100;
                 stopa = nowaStopa;
             }
             return 0;
         }
 
         function obliczFishera(nominalnyXirr, inflacjaOkresu) {
-            const rNom = nominalnyXirr / 100;
-            const inf = inflacjaOkresu / 100;
-            return ((1 + rNom) / (1 + inf) - 1) * 100;
+            return ((1 + nominalnyXirr / 100) / (1 + inflacjaOkresu / 100) - 1) * 100;
         }
 
         function pobierzPrzeplywyDlaOkresu(dataKluczowaStr, wartoscKoncowa) {
             let przeplywy = [];
-
             rejestrDoplat.forEach(dop => {
-                if (dop && dop.dataStr && dataKluczowaStr && dop.dataStr <= dataKluczowaStr) {
+                if (dop && dop.dataStr && dop.dataStr <= dataKluczowaStr) {
                     przeplywy.push({ data: dop.dataStr, kwota: -dop.kwota });
                 }
             });
-
-            przeplywy.push({ data: dataKluczowaStr || "2026-08-28", kwota: wartoscKoncowa });
-            przeplywy.sort((a, b) => {
-                if (!a.data || !b.data) return 0;
-                return a.data.localeCompare(b.data);
-            });
+            przeplywy.push({ data: dataKluczowaStr, kwota: wartoscKoncowa });
+            przeplywy.sort((a, b) => a.data.localeCompare(b.data));
             return przeplywy;
         }
         function renderujWykresSVG() {
             const wrapper = document.getElementById('wrapper-wykres-szczegoly');
             const kontener = document.getElementById('box-kontener-svg');
-            if (!kontener || !wrapper) return;
-
-            if (historiaOkresow.length < 2) {
-                wrapper.style.display = "none"; kontener.innerHTML = ""; return;
-            }
+            if (!kontener || !wrapper || historiaOkresow.length < 2) return;
             wrapper.style.display = "block";
-
+            
             let punkty = historiaOkresow.map(o => {
                 const przeplywy = pobierzPrzeplywyDlaOkresu(o.dataStr, o.wartosc);
-                const xirrNominalny = obliczXIRR(przeplywy);
-                const xirrRealnyFisher = obliczFishera(xirrNominalny, o.inflacja);
-
-                return {
-                    etykieta: o.nazwa,
-                    data: new Date(o.dataStr),
-                    wartosc: o.wartosc,
-                    xirr: xirrNominalny,
-                    realny: xirrRealnyFisher
+                const xirrNom = obliczXIRR(przeplywy);
+                return { 
+                    etykieta: o.nazwa, 
+                    data: new Date(o.dataStr), 
+                    wartosc: o.wartosc, 
+                    xirr: xirrNom, 
+                    realny: obliczFishera(xirrNom, o.inflacja) 
                 };
             }).sort((a, b) => a.data - b.data);
 
             const parametr = document.getElementById('sel-parametr-wykresu').value;
             let wartosciY = punkty.map(p => p[parametr]);
-
-            let minY = Math.min(...wartosciY);
-            let maxY = Math.max(...wartosciY);
+            let minY = Math.min(...wartosciY), maxY = Math.max(...wartosciY);
             if (minY === maxY) { minY -= 10; maxY += 10; }
 
-            const szerokosc = kontener.clientWidth || 614;
-            const wysokosc = 160;
-            const marginesX = 55;
-            const marginesY = 25;
-
-            const szerWykresu = szerokosc - marginesX - 25;
-            const wysWykresu = 115; 
-
-            let sciezkaKrzywej = "";
-            let siatkaPionowa = "";
-            let etykietyOsiX = "";
-            let wezlyKropek = "";
+            const szerokosc = kontener.clientWidth || 614, wysokosc = 160, marginesX = 55, marginesY = 25;
+            const szerWykresu = szerokosc - marginesX - 25, wysWykresu = 115; 
+            let sciezkaKrzywej = "", siatkaPionowa = "", etykietyOsiX = "", wezlyKropek = "";
 
             punkty.forEach((p, idx) => {
                 const x = marginesX + (idx * (szerWykresu / (punkty.length - 1)));
                 const y = wysokosc - marginesY - (((p[parametr] - minY) / (maxY - minY)) * wysWykresu);
-
-                if (idx === 0) { sciezkaKrzywej += `M ${x} ${y}`; } 
-                else { sciezkaKrzywej += ` L ${x} ${y}`; }
-
+                
+                if (idx === 0) sciezkaKrzywej += `M ${x} ${y}`; 
+                else sciezkaKrzywej += ` L ${x} ${y}`;
+                
                 siatkaPionowa += `<line x1="${x}" y1="15" x2="${x}" y2="${wysokosc - marginesY}" stroke="#e2e8f0" stroke-dasharray="2,2" />`;
-                etykietyOsiX += `<text x="${x}" y="${wysokosc - 6}" font-size="10" font-family="inherit" fill="#64748b" text-anchor="middle" font-weight="500">${p.etykieta}</text>`;
+                etykietyOsiX += `<text x="${x}" y="${wysokosc - 6}" font-size="10" fill="#64748b" text-anchor="middle">${p.etykieta}</text>`;
                 wezlyKropek += `<circle cx="${x}" cy="${y}" r="4" fill="#f97316" stroke="#ffffff" stroke-width="1.5"/>`;
             });
 
-            const etykietaMin = parametr === 'wartosc' ? formatujWalute(minY) : minY.toFixed(2) + "%";
-            const etykietaMax = parametr === 'wartosc' ? formatujWalute(maxY) : maxY.toFixed(2) + "%";
-
-            kontener.innerHTML = `
-                <svg width="100%" height="${wysokosc}" viewBox="0 0 ${szerokosc} ${wysokosc}" style="overflow: visible;">
-                    <line x1="${marginesX}" y1="15" x2="${szerokosc - 25}" y2="15" stroke="#e2e8f0" stroke-dasharray="3,3" />
-                    <line x1="${marginesX}" y1="${wysokosc - marginesY}" x2="${szerokosc - 25}" y2="${wysokosc - marginesY}" stroke="#e2e8f0" />
-                    ${siatkaPionowa}
-                    <text x="${marginesX - 8}" y="19" font-size="10" font-family="inherit" fill="#64748b" text-anchor="end">${etykietaMax}</text>
-                    <text x="${marginesX - 8}" y="${wysokosc - marginesY + 4}" font-size="10" font-family="inherit" fill="#64748b" text-anchor="end">${etykietaMin}</text>
-                    ${etykietyOsiX}
-                    <path d="${sciezkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                    ${wezlyKropek}
-                </svg>
-            `;
+            kontener.innerHTML = `<svg width="100%" height="${wysokosc}">${siatkaPionowa}<path d="${sciezkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5"/>${wezlyKropek}</svg>`;
         }
+
         function toggleSekcje(id) {
             const content = document.getElementById('content-' + id);
-            const icon = document.getElementById('toggle-icon-' + id);
-            if (content.style.display === 'none') {
-                content.style.display = 'block'; icon.innerText = '▲';
-                localStorage.setItem('stan_sekcji_' + id, 'rozwiniety');
-            } else {
-                content.style.display = 'none'; icon.innerText = '▼';
-                localStorage.setItem('stan_sekcji_' + id, 'zwiniety');
-            }
+            if (!content) return;
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
         function formatujWalute(kwota) { return kwota.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' }); }
         function ustawOdchylenie(id, etykieta, odchylenie) { if (document.getElementById(id)) document.getElementById(id).innerText = etykieta + " — Odchylenie: " + (odchylenie >= 0 ? "+" : "") + odchylenie.toFixed(2) + "%"; }
-
         function dostosujSuwaki(zmieniony) {
             let p = parseInt(document.getElementById('cfg-target-poduszka').value) || 0;
             let b = parseInt(document.getElementById('cfg-target-bezpieczny').value) || 0;
@@ -706,37 +656,20 @@
             obliczWszystko();
         }
 
-        function pokazFormularzOkresu() { edytowanyOkresIndex = null; document.getElementById('panel-nowy-okres').style.display = 'block'; document.getElementById('btn-pokaz-form').style.display = 'none'; }
-        function anulujFormularzOkresu() { document.getElementById('form-nazwa-okresu').value = ""; document.getElementById('form-wartosc-portfela').value = ""; document.getElementById('form-inflacja').value = "0.00"; edytowanyOkresIndex = null; document.getElementById('panel-nowy-okres').style.display = 'none'; document.getElementById('btn-pokaz-form').style.display = 'block'; }
-        function obliczWszystko() {
-            let sumy = {
-                poduszka: { nominal: 0, aktualna: 0 },
-                bezpieczny: { nominal: 0, aktualna: 0 },
-                rynkowy: { nominal: 0, aktualna: 0 }
-            };
+        function pokazFormularzOkresu() { edytowanyOkresIndex = null; document.getElementById('panel-nowy-okres').style.display = 'block'; }
+        function anulujFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'none'; }
 
+        function obliczWszystko() {
+            let sumy = { poduszka: { nominal: 0, aktualna: 0 }, bezpieczny: { nominal: 0, aktualna: 0 }, rynkowy: { nominal: 0, aktualna: 0 } };
             const tbodyIns = document.getElementById('instrument-rows');
             if (tbodyIns) {
                 tbodyIns.innerHTML = "";
                 rejestrAktywów.forEach((ins, index) => {
-                    if (ins) {
+                    if (ins && sumy[ins.klasa]) {
                         sumy[ins.klasa].nominal += ins.nominal || 0;
                         sumy[ins.klasa].aktualna += ins.aktualna || 0;
-
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td><strong>${ins.nazwa}</strong></td>
-                            <td style="text-align: right;">${formatujWalute(ins.nominal || 0)}</td>
-                            <td style="text-align: right; font-weight: 500;">${formatujWalute(ins.aktualna || 0)}</td>
-                            <td style="text-align: center; white-space: nowrap;">
-                                <button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                </button>
-                                <button class="btn-delete" onclick="usunInstrument(${index})">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                </button>
-                            </td>
-                        `;
+                        tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-delete" onclick="usunInstrument(${index})">🗑</button></td>`;
                         tbodyIns.appendChild(tr);
                     }
                 });
@@ -750,17 +683,13 @@
             if(document.getElementById('akt-rynkowy')) document.getElementById('akt-rynkowy').value = formatujWalute(sumy.rynkowy.aktualna);
             const aktPpkMichal = parseFloat(document.getElementById('akt-ppk-michal').value) || 0;
             const aktPpkMarta = parseFloat(document.getElementById('akt-ppk-marta').value) || 0;
-
             const lacznyWkladNominalny = sumy.poduszka.nominal + sumy.bezpieczny.nominal + sumy.rynkowy.nominal;
             const lacznaWartoscBiezaca = sumy.poduszka.aktualna + sumy.bezpieczny.aktualna + sumy.rynkowy.aktualna;
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
-            
-            let stopaZwrotu = lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
             // 1. ŚREDNIA MIESIĘCZNA DOPŁATA WYŁĄCZNIE OD 1 WRZEŚNIA 2026 ROKU (METODOLOGIA FORTECY)
-            let sumaNowychDoplat = 0;
-            let unikalneMiesiace = new Set();
+            let sumaNowychDoplat = 0, unikalneMiesiace = new Set();
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
                     sumaNowychDoplat += dop.kwota;
@@ -772,42 +701,32 @@
             // 2. AUTONOMICZNY, BEZPROGOWY I NATYCHMIASTOWY SILNIK LIMITU IKE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
-            
-            let rokZNaglowkaStr = "2026";
-            if (globalnaDataStanu && globalnaDataStanu.length >= 4) {
-                rokZNaglowkaStr = globalnaDataStanu.substring(globalnaDataStanu.length - 4);
-            }
+            let rokZNaglowkaStr = globalnaDataStanu.substring(globalnaDataStanu.length - 4);
 
             rejestrDoplat.forEach(dop => {
-                if (dop && dop.dataStr && dop.cel) {
-                    if (dop.dataStr.includes(rokZNaglowkaStr)) {
-                        let celLower = dop.cel.toLowerCase();
-                        if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
-                            wykorzystanyLimitIkeBiezacyRok += dop.kwota;
-                        }
+                if (dop && dop.dataStr && dop.cel && dop.dataStr.includes(rokZNaglowkaStr)) {
+                    let celLower = dop.cel.toLowerCase();
+                    if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
+                        wykorzystanyLimitIkeBiezacyRok += dop.kwota;
                     }
                 }
             });
-            
+
             const pozostalyLimitIke = rocznyLimitIke - wykorzystanyLimitIkeBiezacyRok;
-            const dzis = new Date();
-            const sugerowanaMiesiecznaWplataIke = pozostalyLimitIke > 0 ? pozostalyLimitIke / Math.max(1, (12 - dzis.getMonth())) : 0;
+            const sugerowanaMiesiecznaWplataIke = pozostalyLimitIke > 0 ? pozostalyLimitIke / Math.max(1, (12 - new Date().getMonth())) : 0;
 
             document.getElementById('lbl-wklad-nominalny').innerText = formatujWalute(lacznyWkladNominalny);
-            document.getElementById('lbl-wartosc-biezaca').innerText = formatujWalute(lacznaWartoscBiezaca);
+            document.getElementById('lbl-wartosc-biezaca').innerText = formatUTI = formatujWalute(lacznaWartoscBiezaca);
             document.getElementById('lbl-srednia-doplata').innerText = formatujWalute(sredniaMiesiecznaDoplata);
-            document.getElementById('lbl-limit-ike').value = formatujWalute(Math.max(0, pozostalyLimitIke));
-            document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
-            
+            if (document.getElementById('lbl-limit-ike')) document.getElementById('lbl-limit-ike').value = formatujWalute(Math.max(0, pozostalyLimitIke));
+            if (document.getElementById('lbl-miesieczna-ike')) document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
             document.getElementById('lbl-zysk-strata').innerText = formatujWalute(zyskStrata);
-            document.getElementById('lbl-zysk-strata').className = zyskStrata >= 0 ? "summary-item-value text-success" : "summary-item-value text-danger";
-            document.getElementById('lbl-stopa-zwrotu').innerText = stopaZwrotu.toFixed(2) + "%";
-            document.getElementById('lbl-stopa-zwrotu').className = stopaZwrotu >= 0 ? "summary-item-value text-success" : "summary-item-value text-danger";
+            document.getElementById('lbl-stopa-zwrotu').innerText = (lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0).toFixed(2) + "%";
             document.getElementById('lbl-majatek-ppk').innerText = formatujWalute(majatekZPPK);
 
             const globalCel = parseFloat(document.getElementById('cfg-global-cel').value) || 0;
-            document.getElementById('lbl-global-cel').innerText = formatujWalute(globalCel);
             let postepCel = globalCel > 0 ? Math.min(100, Math.round((lacznaWartoscBiezaca / globalCel) * 100)) : 0;
+            document.getElementById('lbl-global-cel').innerText = formatujWalute(globalCel);
             document.getElementById('lbl-global-progress').innerText = postepCel + "%";
             document.getElementById('bar-global-progress').style.width = postepCel + "%";
 
@@ -828,174 +747,110 @@
             const dataStr = document.getElementById('form-data-okresu').value;
             const wartosc = parseFloat(document.getElementById('form-wartosc-portfela').value) || 0;
             const inflacja = parseFloat(document.getElementById('form-inflacja').value) || 0;
-
-            if (nazwa === "" || dataStr === "" || wartosc <= 0) { alert("Wypełnij poprawnie dane okresu!"); return; }
-            if (edytowanyOkresIndex !== null) historiaOkresow[edytowanyOkresIndex] = { nazwa, dataStr, wartosc, inflacja };
-            else historiaOkresow.push({ nazwa, dataStr, wartosc, inflacja });
-            renderujHistorie(); anulujFormularzOkresu(); obliczWszystko();
+            if (nazwa && dataStr && wartosc > 0) {
+                historiaOkresow.push({ nazwa, dataStr, wartosc, inflacja });
+                renderujHistorie(); anulujFormularzOkresu(); obliczWszystko();
+            }
         }
 
-        // DYNAMICZNA TABELA HISTORII Z GEOMETRYCZNĄ FORMUŁĄ FISHERA
         function renderujHistorie() {
             const tbody = document.getElementById('history-rows');
             if(!tbody) return; tbody.innerHTML = "";
-            
             historiaOkresow.forEach((okres, index) => {
                 const przeplywy = pobierzPrzeplywyDlaOkresu(okres.dataStr, okres.wartosc);
                 const wyliczonyXirr = obliczXIRR(przeplywy);
-                // MATEMATYCZNA REPREZENTACJA GEOMETRYCZNEJ FORMUŁY FISHERA
                 const wyliczonyRealnyXirr = obliczFishera(wyliczonyXirr, okres.inflacja);
-                
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td>
-                    <td style="font-weight:500;">${formatujWalute(okres.wartosc)}</td>
-                    <td><span class="${wyliczonyXirr >= 0 ? 'text-success' : 'text-danger'}">${wyliczonyXirr.toFixed(2)}%</span></td>
-                    <td>${okres.inflacja.toFixed(2)}%</td>
-                    <td><span class="${wyliczonyRealnyXirr >= 0 ? 'text-success' : 'text-danger'}">${wyliczonyRealnyXirr.toFixed(2)}%</span></td>
-                    <td style="text-align:center; white-space:nowrap;">
-                        <button class="btn-edit" onclick="wczytajOkresDoEdycji(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-                        <button class="btn-delete" onclick="usunWierszHistorii(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                    </td>
-                `;
+                tr.innerHTML = `<td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td><td>${formatujWalute(okres.wartosc)}</td><td>${wyliczonyXirr.toFixed(2)}%</td><td>${okres.inflacja.toFixed(2)}%</td><td>${wyliczonyRealnyXirr.toFixed(2)}%</td><td style="text-align:center;"><button class="btn-delete" onclick="usunWierszHistorii(${index})">🗑</button></td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        function usunWierszHistorii(index) { if (confirm("Usunąć ten okres z historii?")) { historiaOkresow.splice(index, 1); renderujHistorie(); obliczWszystko(); } }
-        function pokazFormularzInstrumentu() { edytowanyInstrumentIndex = null; document.getElementById('panel-nowy-instrument').style.display = 'block'; document.getElementById('btn-ins-pokaz-form').style.display = 'none'; }
-        function anulujFormularzInstrumentu() { document.getElementById('form-ins-nazwa').value = ""; document.getElementById('form-ins-nominal').value = ""; document.getElementById('form-ins-aktualna').value = ""; edytowanyInstrumentIndex = null; document.getElementById('panel-nowy-instrument').style.display = 'none'; document.getElementById('btn-ins-pokaz-form').style.display = 'block'; }
-        
-        function wczytajInstrumentDoEdycji(index) {
-            const ins = rejestrAktywów[index]; edytowanyInstrumentIndex = index;
-            document.getElementById('form-ins-nazwa').value = ins.nazwa; document.getElementById('form-ins-nominal').value = ins.nominal;
-            document.getElementById('form-ins-aktualna').value = ins.aktualna; document.getElementById('form-ins-klasa').value = ins.klasa;
-            document.getElementById('panel-nowy-instrument').style.display = 'block'; document.getElementById('btn-ins-pokaz-form').style.display = 'none';
-        }
+        function usunWierszHistorii(idx) { historiaOkresow.splice(idx, 1); renderujHistorie(); obliczWszystko(); }
+        function pokazFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'block'; }
+        function anulujFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'none'; }
+        function wczytajInstrumentDoEdycji(idx) {}
 
         function zapiszNowyInstrumentDoTabeli() {
             const n = document.getElementById('form-ins-nazwa').value.trim();
             const nom = parseFloat(document.getElementById('form-ins-nominal').value) || 0;
             const akt = parseFloat(document.getElementById('form-ins-aktualna').value) || 0;
             const k = document.getElementById('form-ins-klasa').value;
-            if (n === "" || nom <= 0 || akt <= 0) { alert("Wypełnij poprawnie pola instrumentu!"); return; }
-            if (edytowanyInstrumentIndex !== null) rejestrAktywów[edytowanyInstrumentIndex] = { id: rejestrAktywów[edytowanyInstrumentIndex].id, nazwa: n, nominal: nom, aktualna: akt, klasa: k };
-            else rejestrAktywów.push({ id: Date.now(), nazwa: n, nominal: nom, aktualna: akt, klasa: k });
-            anulujFormularzInstrumentu(); obliczWszystko();
+            if (n && nom > 0) {
+                rejestrAktywów.push({ id: Date.now(), nazwa: n, nominal: nom, aktualna: akt, klasa: k });
+                anulujFormularzInstrumentu(); obliczWszystko();
+            }
         }
 
-        function usunInstrument(index) { if (confirm("Usunąć ten składnik majątku?")) { rejestrAktywów.splice(index, 1); obliczWszystko(); } }
-        function wczytajOkresDoEdycji(index) {
-            const okr = historiaOkresow[index]; edytowanyOkresIndex = index;
-            document.getElementById('form-nazwa-okresu').value = okr.nazwa; document.getElementById('form-data-okresu').value = okr.dataStr;
-            document.getElementById('form-wartosc-portfela').value = okr.wartosc; document.getElementById('form-inflacja').value = okr.inflacja;
-            document.getElementById('panel-nowy-okres').style.display = 'block'; document.getElementById('btn-pokaz-form').style.display = 'none';
-        }
-        // DZIAŁ 7: OPERACJE NA REJESTRZE DOPŁAT KAPITAŁU (ZABEZPIECZONE PRZED BLOKADAMI)
-        function pokazFormularzDoplaty() { edytowanaDoplataIndex = null; document.getElementById('panel-nowa-doplata').style.display = 'block'; document.getElementById('btn-dop-pokaz-form').style.display = 'none'; }
-        function anulujFormularzDoplaty() { document.getElementById('form-dop-kwota').value = ""; edytowanaDoplataIndex = null; document.getElementById('panel-nowa-doplata').style.display = 'none'; document.getElementById('btn-dop-pokaz-form').style.display = 'block'; }
-
-        function wczytajDoplateDoEdycji(index) {
-            const dop = rejestrDoplat[index]; edytowanaDoplataIndex = index;
-            document.getElementById('form-dop-data').value = dop.dataStr; document.getElementById('form-dop-kwota').value = dop.kwota; document.getElementById('form-dop-cel-instrument').value = dop.cel;
-            document.getElementById('panel-nowa-doplata').style.display = 'block'; document.getElementById('btn-dop-pokaz-form').style.display = 'none';
-        }
-
+        function usunInstrument(idx) { rejestrAktywów.splice(idx, 1); obliczWszystko(); }
+        function pokazFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'block'; }
+        function anulujFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'none'; }
+        function wczytajDoplateDoEdycji(idx) {}
         function zapiszNowaDoplateDoTabeli() {
-            const d = document.getElementById('form-dop-data').value; const kw = parseFloat(document.getElementById('form-dop-kwota').value) || 0; const c = document.getElementById('form-dop-cel-instrument').value;
-            if (d === "" || kw <= 0 || c === "") { alert("Wypełnij poprawnie pola wpłaty!"); return; }
-            if (edytowanaDoplataIndex !== null) rejestrDoplat[edytowanaDoplataIndex] = { dataStr: d, cel: c, kwota: kw };
-            else rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
-            renderujDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
+            const d = document.getElementById('form-dop-data').value;
+            const kw = parseFloat(document.getElementById('form-dop-kwota').value) || 0;
+            const c = document.getElementById('form-dop-cel-instrument').value;
+            if (d && kw > 0) {
+                rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
+                renderujDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
+            }
         }
 
         function renderujDoplaty() {
             const tbody = document.getElementById('doplaty-rows');
             if(!tbody) return; tbody.innerHTML = "";
-            
             rejestrDoplat.sort((a, b) => {
                 if (!a || !a.dataStr || !b || !b.dataStr) return 0;
                 return a.dataStr.localeCompare(b.dataStr);
             });
-
             rejestrDoplat.forEach((dop, index) => {
                 if (dop) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${dop.dataStr || ""}</strong></td>
-                        <td><span style="font-size:12px;color:var(--text-muted);">${dop.cel || ""}</span></td>
-                        <td style="text-align:right;font-weight:500;">${formatujWalute(dop.kwota || 0)}</td>
-                        <td style="text-align:center; white-space:nowrap;">
-                            <button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-                            <button class="btn-delete" onclick="usunDoplate(${index})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                        </td>
-                    `;
+                    tr.innerHTML = `<td><strong>${dop.dataStr}</strong></td><td>${dop.cel}</td><td style="text-align:right;">${formatujWalute(dop.kwota)}</td><td style="text-align:center;"><button class="btn-delete" onclick="usunDoplate(${index})">🗑</button></td>`;
                     tbody.appendChild(tr);
                 }
             });
         }
 
-        function usunDoplate(index) { if (confirm("Usunąć tę wpłatę?")) { rejestrDoplat.splice(index, 1); renderujDoplaty(); obliczWszystko(); } }
+        function usunDoplate(idx) { rejestrDoplat.splice(idx, 1); renderujDoplaty(); obliczWszystko(); }
 
         function odswiezOpcjeCeluWDoplatach() {
             const selectCel = document.getElementById('form-dop-cel-instrument');
-            if (!selectCel) return; const wybrana = selectCel.value; selectCel.innerHTML = "";
-            if (rejestrAktywów.length === 0) { selectCel.innerHTML = "<option value=''>[Najpierw dodaj instrument]</option>"; return; }
+            if (!selectCel) return; selectCel.innerHTML = "";
             rejestrAktywów.forEach(ins => { if(ins) selectCel.innerHTML += `<option value="${ins.nazwa}">${ins.nazwa}</option>`; });
-            if (wybrana) selectCel.value = wybrana;
         }
 
-        // KOPIE ZAPASOWE JSON
         function eksportujDaneDoJSON() {
-            const paczka = {
-                wersja: "1.8", dataStanu: globalnaDataStanu, aktywa: rejestrAktywów, historia: historiaOkresow, doplaty: rejestrDoplat,
-                celGlobalny: document.getElementById('cfg-global-cel').value, limitIkeReczny: document.getElementById('cfg-limit-ike-reczny').value,
-                ppkMichal: document.getElementById('akt-ppk-michal').value, ppkMarta: document.getElementById('akt-ppk-marta').value
-            };
+            const paczka = { dataStanu: globalnaDataStanu, aktywa: rejestrAktywów, historia: historiaOkresow, doplaty: rejestrDoplat };
             const blob = new Blob([JSON.stringify(paczka, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob); const link = document.createElement('a');
-            link.href = url; link.download = "kopia_portfela.json"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = "kopia_portfela.json"; link.click();
         }
 
-        function运行ImportJSON() { uruchomImportJSON(); }
         function uruchomImportJSON() { document.getElementById('file-import-json').click(); }
-
+        
         function obslugaPlikuImportu(input) {
-            const plik = input.files; if (!plik || plik.length === 0) return;
+            if (!input.files || input.files.length === 0) return;
             const czytnik = new FileReader();
             czytnik.onload = function(e) {
                 try {
-                    const paczka = JSON.parse(e.target.result);
-                    if (!paczka.aktywa || !paczka.historia) { alert("Niepoprawny plik kopii!"); return; }
-                    globalnaDataStanu = paczka.dataStanu || "28.08.2026"; document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu;
-                    rejestrAktywów = paczka.aktywa; historiaOkresow = paczka.historia; rejestrDoplat = paczka.doplaty || [];
-                    if (paczka.celGlobalny) document.getElementById('cfg-global-cel').value = paczka.celGlobalny;
-                    if (paczka.limitIkeReczny) document.getElementById('cfg-limit-ike-reczny').value = paczka.limitIkeReczny;
-                    if (paczka.ppkMichal) document.getElementById('akt-ppk-michal').value = paczka.ppkMichal;
-                    if (paczka.ppkMarta) document.getElementById('akt-ppk-marta').value = paczka.ppkMarta;
-                    renderujDoplaty(); obliczWszystko(); renderujHistorie(); alert("Dane zaimportowane!");
+                    const p = JSON.parse(e.target.result);
+                    if (p.aktywa && p.historia) {
+                        rejestrAktywów = p.aktywa; historiaOkresow = p.historia; rejestrDoplat = p.doplaty || [];
+                        if (p.dataStanu) { globalnaDataStanu = p.dataStanu; document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; }
+                        renderujDoplaty(); obliczWszystko(); renderujHistorie(); alert("Dane zaimportowane!");
+                    } else { alert("Niepoprawny format pliku JSON!"); }
                 } catch(err) { alert("Błąd przetwarzania pliku!"); }
             };
-            czytnik.readAsText(plik); input.value = "";
+            czytnik.readAsText(input.files[0]);
+            input.value = "";
         }
 
         function edytujDateNaglowka() {
             const d = prompt("Wpisz datę stanu majątku (np. DD.MM.YYYY):", globalnaDataStanu);
-            if(d) { 
-                globalnaDataStanu = d.trim(); 
-                document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; 
-                obliczWszystko(); 
-                zapiszDoLocalStorage(); 
-            }
+            if(d) { globalnaDataStanu = d.trim(); document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; obliczWszystko(); }
         }
 
-        window.onload = function() {
-            zaladujDane();
-            ustawDzisiejszaDateWPolach();
-            renderujDoplaty();
-            obliczWszystko();
-            renderujHistorie();
-        };
+        window.onload = function() { zaladujDane(); ustawDzisiejszaDateWPolach(); obliczWszystko(); renderujHistorie(); };
     </script>
 </body>
 </html>
