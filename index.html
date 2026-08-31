@@ -574,6 +574,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
+            if (przeplywy.length === 0 || !przeplywy[0].data) return 0;
             const dataPocz = new Date(przeplywy[0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
@@ -757,30 +758,22 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA — CAŁKOWICIE NAPRAWIONA LOGIKA CZASOWA OD 01.09.2026
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA — PODZIAŁ NA BAZIE UNIKALNYCH MIESIĘCY WPISÓW Z DZIAŁU 7
             let sumaNowychDoplat = 0;
+            let unikalneMiesiaceDoplat = new Set();
+
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
                     sumaNowychDoplat += dop.kwota;
+                    // Wyciągamy rok i miesiąc, np. "2026-09" ze stringa "2026-09-15"
+                    let kluczMiesiaca = dop.dataStr.substring(0, 7);
+                    unikalneMiesiaceDoplat.add(kluczMiesiaca);
                 }
             });
 
-            let iloscMiesiecy = 1; 
-            if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
-                let czesci = globalnaDataStanu.split('.');
-                if (czesci.length === 3) {
-                    let dNaglowka = parseInt(czesci[0]) || 1;
-                    let mNaglowka = parseInt(czesci[1]) || 9;
-                    let rNaglowka = parseInt(czesci[2]) || 2026;
-                    let roznicaMiesiecy = (rNaglowka - 2026) * 12 + (mNaglowka - 9);
-                    if (roznicaMiesiecy > 0) {
-                        iloscMiesiecy = roznicaMiesiecy + (dNaglowka / 30.0);
-                    } else {
-                        iloscMiesiecy = Math.max(1, dNaglowka) / 30.0;
-                    }
-                }
-            }
-            let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
+            // Liczba miesięcy to liczba unikalnych miesięcy z wpłatami (minimum 1, aby uniknąć dzielenia przez 0)
+            let liczbaMiesiecyDzielnik = Math.max(1, unikalneMiesiaceDoplat.size);
+            let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / liczbaMiesiecyDzielnik) : 0;
 
             // 2. SILNIK LIMITU IKE Z POPRAWNYM WYCIĄGANIEM ROKU
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
