@@ -208,133 +208,6 @@
                 </div>
             </div>
         </div>
-        <!-- 3. REALIZACJA CELU I ALOKACJA -->
-        <div class="card" id="card-dzial3">
-            <h2 onclick="toggleSekcje('dzial3')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                <span>3. Realizacja celu i alokacja</span>
-                <span id="toggle-icon-dzial3" style="font-size: 11px; color: var(--text-muted);">▲</span>
-            </h2>
-            <div id="content-dzial3" style="display: block;">
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Globalny cel finansowy</span>
-                        <span style="font-weight: 600;" id="lbl-global-cel">0 zł</span>
-                    </div>
-                    <input type="range" id="cfg-global-cel" min="10000" max="2000000" step="10000" value="300000" oninput="obliczWszystko()">
-                </div>
-
-                <div class="progress-container" style="margin-top: 20px; margin-bottom: 24px;">
-                    <div class="progress-info">
-                        <strong>Postęp globalnego celu</strong>
-                        <span id="lbl-global-progress">0%</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="bar-global-progress"></div>
-                    </div>
-                </div>
-
-                <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase;">Wagi docelowe:</div>
-
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Poduszka bezpieczeństwa (cel)</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span id="lbl-target-poduszka">30%</span>
-                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
-                        </div>
-                    </div>
-                    <input type="range" id="cfg-target-poduszka" min="0" max="100" value="30" oninput="dostosujSuwaki('poduszka')">
-                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-poduszka"></div>
-                </div>
-
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Portfel długoterminowy (cel)</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span id="lbl-target-bezpieczny">40%</span>
-                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
-                        </div>
-                    </div>
-                    <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="40" oninput="dostosujSuwaki('bezpieczny')">
-                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-bezpieczny"></div>
-                </div>
-
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Komponent rynkowy (cel)</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span id="lbl-target-rynkowy">30%</span>
-                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
-                        </div>
-                    </div>
-                    <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="30" oninput="dostosujSuwaki('rynkowy')">
-                    <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-rynkowy"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. HISTORIA WYNIKÓW -->
-        <div class="card" id="card-dzial4">
-            <h2 onclick="toggleSekcje('dzial4')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                <span>4. Historia wyników</span>
-                <span id="toggle-icon-dzial4" style="font-size: 11px; color: var(--text-muted);">▲</span>
-            </h2>
-            <div id="content-dzial4" style="display: block;">
-                <div id="panel-nowy-okres" class="form-row-popup">
-                    <div class="form-row-grid">
-                        <div class="form-group-custom">
-                            <label>Nazwa okresu (np. Q3 2026)</label>
-                            <input type="text" id="form-nazwa-okresu" placeholder="np. Q3 2026">
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Data kontrolna</label>
-                            <input type="date" id="form-data-okresu">
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Wartość portfela (zł)</label>
-                            <input type="number" id="form-wartosc-portfela" placeholder="Wartość w zł">
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Inflacja roczna (%)</label>
-                            <input type="number" step="0.01" id="form-inflacja" value="0.00">
-                        </div>
-                    </div>
-                    <div class="form-actions-row">
-                        <button class="btn-cancel" onclick="anulujFormularzOkresu()">Anuluj</button>
-                        <button class="btn-save-orange" onclick="zapiszNowyOkresDoTabeli()">Zapisz okres</button>
-                    </div>
-                </div>
-
-                <div class="chart-box-wrapper" id="wrapper-wykres-szczegoly" style="display: none;">
-                    <div class="chart-ctrl-row">
-                        <span style="font-weight:600; font-size:13px;">Trend Fortecy</span>
-                        <select class="chart-select-custom" id="sel-parametr-wykresu" onchange="renderujWykresSVG()">
-                            <option value="wartosc">Wartość portfela (zł)</option>
-                            <option value="xirr">Nominalny XIRR (%)</option>
-                            <option value="realny">Realny XIRR (Fisher %)</option>
-                        </select>
-                    </div>
-                    <div id="box-kontener-svg" style="width: 100%; height: 160px; overflow: visible;"></div>
-                </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Okres / Data</th>
-                                <th>Wartość portfela</th>
-                                <th>XIRR (Roczny)</th>
-                                <th>Inflacja</th>
-                                <th>Realny (Fisher)</th>
-                                <th style="text-align: center; width: 95px;">Akcja</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-rows"></tbody>
-                    </table>
-                </div>
-                <button id="btn-pokaz-form" class="btn-action" onclick="pokazFormularzOkresu()" style="margin-bottom: 12px;">Dodaj okres</button>
-            </div>
-        </div>
         <!-- 5. LIMITY ROCZNE IKE -->
         <div class="card" id="card-dzial5">
             <h2 onclick="toggleSekcje('dzial5')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
@@ -693,7 +566,7 @@
                 if (!zablokowaneSuwaki.bezpieczny) b = 100 - p - r;
                 if (!zablokowaneSuwaki.rynkowy) r = 100 - p - b;
             } else if (tablicaBlokad.length === 1) {
-                let stalyWorek = tablicaBlokad[0];
+                let stalyWorek = tablicaBlokad;
                 let stalaWartosc = parseInt(document.getElementById('cfg-target-' + stalyWorek).value) || 0;
                 let wolnaReszta = 100 - stalaWartosc;
                 if (stalyWorek === 'poduszka') {
@@ -747,7 +620,7 @@
             if(document.getElementById('nom-poduszka')) document.getElementById('nom-poduszka').value = formatujWalute(sumy.poduszka.nominal);
             if(document.getElementById('akt-poduszka')) document.getElementById('akt-poduszka').value = formatujWalute(sumy.poduszka.aktualna);
             if(document.getElementById('nom-bezpieczny')) document.getElementById('nom-bezpieczny').value = formatujWalute(sumy.bezpieczny.nominal);
-            if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatufWalute = formatujWalute(sumy.bezpieczny.aktualna);
+            if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatujWalute(sumy.bezpieczny.aktualna);
             if(document.getElementById('nom-rynkowy')) document.getElementById('nom-rynkowy').value = formatujWalute(sumy.rynkowy.nominal);
             if(document.getElementById('akt-rynkowy')) document.getElementById('akt-rynkowy').value = formatujWalute(sumy.rynkowy.aktualna);
             const aktPpkMichal = parseFloat(document.getElementById('akt-ppk-michal').value) || 0;
