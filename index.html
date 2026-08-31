@@ -527,6 +527,22 @@
                 document.getElementById('lbl-target-bezpieczny').innerText = s.b + "%";
                 document.getElementById('lbl-target-rynkowy').innerText = s.r + "%";
             }
+
+            const zapisaneKlodki = localStorage.getItem('finanse_klodki');
+            if (zapisaneKlodki) {
+                zablokowaneSuwaki = JSON.parse(zapisaneKlodki);
+                Object.keys(zablokowaneSuwaki).forEach(typ => {
+                    const btn = document.getElementById('lock-' + typ);
+                    const input = document.getElementById('cfg-target-' + typ);
+                    if (btn && input) {
+                        if (zablokowaneSuwaki[typ]) {
+                            btn.innerHTML = '🔒'; input.disabled = true; input.style.opacity = '0.5';
+                        } else {
+                            btn.innerHTML = '🔓'; input.disabled = false; input.style.opacity = '1';
+                        }
+                    }
+                });
+            }
             renderujDoplaty();
         }
 
@@ -535,6 +551,7 @@
             localStorage.setItem('finanse_aktywa', JSON.stringify(rejestrAktywów));
             localStorage.setItem('finanse_historia', JSON.stringify(historiaOkresow));
             localStorage.setItem('finanse_doplaty', JSON.stringify(rejestrDoplat));
+            localStorage.setItem('finanse_klodki', JSON.stringify(zablokowaneSuwaki));
             if (document.getElementById('cfg-global-cel')) localStorage.setItem('finanse_cel', document.getElementById('cfg-global-cel').value);
             if (document.getElementById('cfg-limit-ike-reczny')) localStorage.setItem('finanse_limit_ike_reczny', document.getElementById('cfg-limit-ike-reczny').value);
             if (document.getElementById('akt-ppk-michal')) localStorage.setItem('finanse_ppk_michal', document.getElementById('akt-ppk-michal').value);
@@ -557,7 +574,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy.data);
+            const dataPocz = new Date(przeplywy[0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -645,37 +662,53 @@
             const btn = document.getElementById('lock-' + typ);
             const input = document.getElementById('cfg-target-' + typ);
             if (zablokowaneSuwaki[typ]) {
-                btn.innerText = '🔒'; input.style.opacity = '0.6';
+                btn.innerHTML = '🔒'; input.disabled = true; input.style.opacity = '0.5';
             } else {
-                btn.innerText = '🔓'; input.style.opacity = '1';
+                btn.innerHTML = '🔓'; input.disabled = false; input.style.opacity = '1';
             }
+            zapiszDoLocalStorage();
         }
 
         function dostosujSuwaki(zmieniony) {
-            if (zablokowaneSuwaki[zmieniony]) {
-                const zapisane = JSON.parse(localStorage.getItem('finanse_suwaki'));
-                if (zapisane) document.getElementById('cfg-target-' + zmieniony).value = zapisane[zmieniony === 'poduszka' ? 'p' : (zmieniony === 'bezpieczny' ? 'b' : 'r')];
-                return;
-            }
+            if (zablokowaneSuwaki[zmieniony]) return;
             let p = parseInt(document.getElementById('cfg-target-poduszka').value) || 0;
             let b = parseInt(document.getElementById('cfg-target-bezpieczny').value) || 0;
             let r = parseInt(document.getElementById('cfg-target-rynkowy').value) || 0;
+            let tablicaBlokad = Object.keys(zablokowaneSuwaki).filter(k => zablokowaneSuwaki[k]);
 
-            if (zmieniony === 'poduszka') {
-                if (!zablokowaneSuwaki.bezpieczny && !zablokowaneSuwaki.rynkowy) {
-                    let reszta = 100 - p; if (b + r > 0) { let st = b / (b + r); b = Math.round(reszta * st); r = reszta - b; } else { b = Math.round(reszta / 2); r = reszta - b; }
-                } else if (!zablokowaneSuwaki.bezpieczny && zablokowaneSuwaki.rynkowy) { b = 100 - p - r; if (b < 0) { b = 0; p = 100 - r; }
-                } else if (zablokowaneSuwaki.bezpieczny && !zablokowaneSuwaki.rynkowy) { r = 100 - p - b; if (r < 0) { r = 0; p = 100 - b; } }
-            } else if (zmieniony === 'bezpieczny') {
-                if (!zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.rynkowy) {
-                    let reszta = 100 - b; if (p + r > 0) { let st = p / (p + r); p = Math.round(reszta * st); r = reszta - p; } else { p = Math.round(reszta / 2); r = reszta - p; }
-                } else if (!zablokowaneSuwaki.poduszka && zablokowaneSuwaki.rynkowy) { p = 100 - b - r; if (p < 0) { p = 0; b = 100 - r; }
-                } else if (zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.rynkowy) { r = 100 - b - p; if (r < 0) { r = 0; b = 100 - p; } }
-            } else if (zmieniony === 'rynkowy') {
-                if (!zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.bezpieczny) {
-                    let reszta = 100 - r; if (p + b > 0) { let st = p / (p + b); p = Math.round(reszta * st); b = reszta - p; } else { p = Math.round(reszta / 2); b = reszta - p; }
-                } else if (!zablokowaneSuwaki.poduszka && zablokowaneSuwaki.bezpieczny) { p = 100 - r - b; if (p < 0) { p = 0; r = 100 - b; }
-                } else if (zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.bezpieczny) { b = 100 - r - p; if (b < 0) { b = 0; r = 100 - p; } }
+            if (tablicaBlokad.length === 3) return;
+            if (tablicaBlokad.length === 2) {
+                if (!zablokowaneSuwaki.poduszka) p = 100 - b - r;
+                if (!zablokowaneSuwaki.bezpieczny) b = 100 - p - r;
+                if (!zablokowaneSuwaki.rynkowy) r = 100 - p - b;
+            } else if (tablicaBlokad.length === 1) {
+                let stalyWorek = tablicaBlokad[0];
+                let stalaWartosc = parseInt(document.getElementById('cfg-target-' + stalyWorek).value) || 0;
+                let wolnaReszta = 100 - stalaWartosc;
+                if (stalyWorek === 'poduszka') {
+                    if (zmieniony === 'bezpieczny') { b = Math.min(wolnaReszta, b); r = wolnaReszta - b; }
+                    if (zmieniony === 'rynkowy') { r = Math.min(wolnaReszta, r); b = wolnaReszta - r; }
+                } else if (stalyWorek === 'bezpieczny') {
+                    if (zmieniony === 'poduszka') { p = Math.min(wolnaReszta, p); r = wolnaReszta - p; }
+                    if (zmieniony === 'rynkowy') { r = Math.min(wolnaReszta, r); p = wolnaReszta - r; }
+                } else if (stalyWorek === 'rynkowy') {
+                    if (zmieniony === 'poduszka') { p = Math.min(wolnaReszta, p); b = wolnaReszta - p; }
+                    if (zmieniony === 'bezpieczny') { b = Math.min(wolnaReszta, b); p = wolnaReszta - b; }
+                }
+            } else {
+                if (zmieniony === 'poduszka') {
+                    let reszta = 100 - p;
+                    if (b + r > 0) { let st = b / (b + r); b = Math.round(reszta * st); r = reszta - b; } 
+                    else { b = Math.round(reszta / 2); r = reszta - b; }
+                } else if (zmieniony === 'bezpieczny') {
+                    let reszta = 100 - b;
+                    if (p + r > 0) { let st = p / (p + r); p = Math.round(reszta * st); r = reszta - p; } 
+                    else { p = Math.round(reszta / 2); r = reszta - p; }
+                } else if (zmieniony === 'rynkowy') {
+                    let reszta = 100 - r;
+                    if (p + b > 0) { let st = p / (p + b); p = Math.round(reszta * st); b = reszta - p; } 
+                    else { p = Math.round(reszta / 2); b = reszta - p; }
+                }
             }
             p = Math.max(0, Math.min(100, p)); b = Math.max(0, Math.min(100, b)); r = Math.max(0, Math.min(100, r));
             document.getElementById('cfg-target-poduszka').value = p; document.getElementById('cfg-target-bezpieczny').value = b; document.getElementById('cfg-target-rynkowy').value = r;
