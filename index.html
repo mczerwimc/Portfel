@@ -981,14 +981,14 @@
             czytnik.onload = function(e) {
                 try {
                     const p = JSON.parse(e.target.result);
-                    if (p.aktywa && p.historia && p.doplaty) {
-                        // TWARDE NADPISANIE LOCALSTORAGE PRZED URUCHOMIENIEM INTERFEJSU
+                    if (p && p.aktywa) {
+                        // TWARDE NADPISANIE LOCALSTORAGE Z BEZPIECZNYM PODSTAWIENIEM PUSTYCH TABLIC
                         localStorage.setItem('finanse_data_stanu', p.dataStanu || "28.08.2026");
-                        localStorage.setItem('finanse_aktywa', JSON.stringify(p.aktywa));
-                        localStorage.setItem('finanse_historia', JSON.stringify(p.historia));
-                        localStorage.setItem('finanse_doplaty', JSON.stringify(p.doplaty));
+                        localStorage.setItem('finanse_aktywa', JSON.stringify(p.aktywa || []));
+                        localStorage.setItem('finanse_historia', JSON.stringify(p.historia || []));
+                        localStorage.setItem('finanse_doplaty', JSON.stringify(p.doplaty || []));
                         
-                        // PONOWNE INICJALIZOWANIE STRONY Z BAZY LOCALSTORAGE
+                        // PONOWNE INICJALIZOWANIE INTERFEJSU Z BAZY LOCALSTORAGE
                         zaladujDane();
                         renderGridCustomDoplaty();
                         obliczWszystko();
