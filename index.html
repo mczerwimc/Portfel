@@ -987,7 +987,11 @@
                     if (p.aktywa && p.historia) {
                         rejestrAktywów = p.aktywa; historiaOkresow = p.historia; rejestrDoplat = p.doplaty || [];
                         if (p.dataStanu) { globalnaDataStanu = p.dataStanu; document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; }
-                        renderujDoplaty(); obliczWszystko(); renderujHistorie(); alert("Dane zaimportowane!");
+                        
+                        // WYMUSZENIE ZAPISU DO LOCALSTORAGE PRZEGLĄDARKI PO IMPORCIE
+                        zapiszDoLocalStorage();
+                        
+                        renderujDoplaty(); obliczWszystko(); renderujHistorie(); alert("Dane zaimportowane i zapisane!");
                     } else { alert("Niepoprawny format pliku JSON!"); }
                 } catch(err) { alert("Błąd przetwarzania pliku!"); }
             };
