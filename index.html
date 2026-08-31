@@ -72,7 +72,7 @@
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-orange); cursor: pointer; }
         .btn-delete, .btn-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; font-size: 14px; }
         .btn-delete:hover { color: var(--accent-red); }
-        .btn-edit:hover { color: var(--accent-orange); }
+        .btn-edit:hover { color: var(--text-main); }
         .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .summary-item { background-color: var(--bg-page); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
         .summary-item-label { font-size: 11px; color: var(--text-muted); }
@@ -574,7 +574,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy.data);
+            const dataPocz = new Date(przeplywy[0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -757,7 +757,7 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (ZINTEGROWANA Z METODOLOGIĄ FORTECY)
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (OD 01.09.2026)
             let sumaNowychDoplat = 0;
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
@@ -782,7 +782,7 @@
             }
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
 
-            // 2. SILNIK LICZNIKA LIMITU IKE Z BEZPIECZNYM WYCIĄGANIEM ROKU
+            // 2. BEZBŁĘDNY SILNIK LICZNIKA LIMITU IKE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
             
@@ -790,7 +790,7 @@
             if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
                 let segmentyDaty = globalnaDataStanu.split('.');
                 if (segmentyDaty.length === 3) {
-                    rokZNaglowkaStr = segmentyDaty[2].trim();
+                    rokZNaglowkaStr = segmentyDaty[2].trim(); // Prawidłowe .trim() na tekście roku!
                 }
             }
 
@@ -816,7 +816,7 @@
             if (document.getElementById('lbl-miesieczna-ike')) document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
             document.getElementById('lbl-zysk-strata').innerText = formatujWalute(zyskStrata);
             document.getElementById('lbl-stopa-zwrotu').innerText = (lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0).toFixed(2) + "%";
-            document.getElementById('lbl-majatek-ppk').innerText = formatujWalute(majatekZPPK);
+            document.getElementById('lbl-majatek-ppk').innerText = formatufWalute = formatujWalute(majatekZPPK);
 
             const globalCel = parseFloat(document.getElementById('cfg-global-cel').value) || 0;
             let postepCel = globalCel > 0 ? Math.min(100, Math.round((lacznaWartoscBiezaca / globalCel) * 100)) : 0;
@@ -847,7 +847,9 @@
                 } else {
                     historiaOkresow.push({ nazwa, dataStr, wartosc, inflacja });
                 }
-                renderujHistorie(); Soccer = anulujFormularzOkresu(); obliczWszystko();
+                renderujHistorie(); 
+                anulujFormularzOkresu(); 
+                obliczWszystko();
             }
         }
 
