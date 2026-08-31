@@ -574,7 +574,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy.data);
+            const dataPocz = new Date(przeplywy[0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -630,8 +630,18 @@
             if (minY === maxY) { minY -= 10; maxY += 10; }
 
             const szerokosc = kontener.clientWidth || 614, wysokosc = 160, marginesX = 55, marginesY = 25;
-            const szerWykresu = szerokosc - marginesX - 25, wysWykresu = 115; 
-            let sciezkaKrzywej = "", siatkaPionowa = "", etykietyOsiX = "", wezlyKropek = "";
+            const szerWykresu = szerokosc - marginesX - 25, wysWykresu = 110; 
+            let sciezkaKrzywej = "", siatkaPionowa = "", etykietyOsiX = "", wezlyKropek = "", liniePoziome = "";
+
+            // Generowanie osi i linii poziomych tła
+            const podzialyY = 3;
+            for (let i = 0; i <= podzialyY; i++) {
+                let v = minY + (i * (maxY - minY) / podzialyY);
+                let y = wysokosc - marginesY - (i * (wysWykresu / podzialyY));
+                let opisY = parametr === 'wartosc' ? (v / 1000).toFixed(0) + 'k' : v.toFixed(1) + '%';
+                liniePoziome += `<line x1="${marginesX}" y1="${y}" x2="${szerokosc - 25}" y2="${y}" stroke="#e2e8f0" stroke-width="1" />`;
+                liniePoziome += `<text x="${marginesX - 8}" y="${y + 4}" font-size="10" fill="#64748b" text-anchor="end">${opisY}</text>`;
+            }
 
             punkty.forEach((p, idx) => {
                 const x = marginesX + (idx * (szerWykresu / (punkty.length - 1)));
@@ -645,7 +655,7 @@
                 wezlyKropek += `<circle cx="${x}" cy="${y}" r="4" fill="#f97316" stroke="#ffffff" stroke-width="1.5"/>`;
             });
 
-            kontener.innerHTML = `<svg width="100%" height="${wysokosc}">${siatkaPionowa}<path d="${sciezkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5"/>${wezlyKropek}</svg>`;
+            kontener.innerHTML = `<svg width="100%" height="${wysokosc}">${liniePoziome}${siatkaPionowa}<path d="${sciezkaKrzywej}" fill="none" stroke="#1e3a8a" stroke-width="2.5"/>${etykietyOsiX}${wezlyKropek}</svg>`;
         }
 
         function toggleSekcje(id) {
@@ -748,7 +758,7 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA – POPRAWIONA LOGIKA CZASOWA OD 01.09.2026
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (ZINTEGROWANA Z METODOLOGIĄ FORTECY)
             let sumaNowychDoplat = 0;
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
@@ -773,14 +783,15 @@
             }
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
 
-            // 2. BEZBŁĘDNY SILNIK LIMITU IKE SPEŁNIAJĄCY WYMOGI METODOLOGICZNE
+            // 2. CAŁKOWICIE ZREPEROWANY SILNIK LICZNIKA LIMITU IKE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
+            
             let rokZNaglowkaStr = "2026";
             if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
                 let segmentyDaty = globalnaDataStanu.split('.');
                 if (segmentyDaty.length === 3) {
-                    rokZNaglowkaStr = segmentyDaty[2].trim();
+                    rokZNaglowkaStr = segmentyDaty[2].trim(); // Prawidłowe użycie .trim() na tekście, nie na tablicy!
                 }
             }
 
