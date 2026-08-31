@@ -326,7 +326,7 @@
                                 <th>XIRR (Roczny)</th>
                                 <th>Inflacja</th>
                                 <th>Realny (Fisher)</th>
-                                <th style="text-align: center; width: 75px;">Akcja</th>
+                                <th style="text-align: center; width: 95px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="history-rows"></tbody>
@@ -406,9 +406,9 @@
                         <thead>
                             <tr>
                                 <th>Nazwa instrumentu</th>
-                                <th style="text-align: right; width:110px;">Wartość nom.</th>
-                                <th style="text-align: right; width:110px;">Wartość akt.</th>
-                                <th style="text-align: center; width:75px;">Akcja</th>
+                                <th style="text-align: right; width:100px;">Wartość nom.</th>
+                                <th style="text-align: right; width:100px;">Wartość akt.</th>
+                                <th style="text-align: center; width:95px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="instrument-rows"></tbody>
@@ -452,8 +452,8 @@
                             <tr>
                                 <th>Data wpłaty</th>
                                 <th>Cel inwestycyjny</th>
-                                <th style="text-align: right; width: 110px;">Kwota</th>
-                                <th style="text-align: center; width: 75px;">Akcja</th>
+                                <th style="text-align: right; width: 100px;">Kwota</th>
+                                <th style="text-align: center; width: 95px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="doplaty-rows"></tbody>
@@ -574,7 +574,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy[0].data);
+            const dataPocz = new Date(przeplywy.data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -633,7 +633,6 @@
             const szerWykresu = szerokosc - marginesX - 25, wysWykresu = 110; 
             let sciezkaKrzywej = "", siatkaPionowa = "", etykietyOsiX = "", wezlyKropek = "", liniePoziome = "";
 
-            // Generowanie osi i linii poziomych tła
             const podzialyY = 3;
             for (let i = 0; i <= podzialyY; i++) {
                 let v = minY + (i * (maxY - minY) / podzialyY);
@@ -728,8 +727,8 @@
             obliczWszystko();
         }
 
-        function pokazFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'block'; }
-        function anulujFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'none'; }
+        function pokazFormularzOkresu() { edytowanyOkresIndex = null; document.getElementById('form-nazwa-okresu').value = ""; document.getElementById('form-wartosc-portfela').value = ""; document.getElementById('form-inflacja').value = "0.00"; document.getElementById('panel-nowy-okres').style.display = 'block'; }
+        function anulujFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'none'; edytowanyOkresIndex = null; }
 
         function obliczWszystko() {
             let sumy = { poduszka: { nominal: 0, aktualna: 0 }, bezpieczny: { nominal: 0, aktualna: 0 }, rynkowy: { nominal: 0, aktualna: 0 } };
@@ -740,7 +739,7 @@
                     if (ins && sumy[ins.klasa]) {
                         sumy[ins.klasa].nominal += ins.nominal || 0; sumy[ins.klasa].aktualna += ins.aktualna || 0;
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-delete" onclick="usunInstrument(${index})">🗑</button></td>`;
+                        tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunInstrument(${index})">🗑</button></td>`;
                         tbodyIns.appendChild(tr);
                     }
                 });
@@ -783,7 +782,7 @@
             }
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
 
-            // 2. CAŁKOWICIE ZREPEROWANY SILNIK LICZNIKA LIMITU IKE
+            // 2. SILNIK LICZNIKA LIMITU IKE Z BEZPIECZNYM WYCIĄGANIEM ROKU
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
             
@@ -791,7 +790,7 @@
             if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
                 let segmentyDaty = globalnaDataStanu.split('.');
                 if (segmentyDaty.length === 3) {
-                    rokZNaglowkaStr = segmentyDaty[2].trim(); // Prawidłowe użycie .trim() na tekście, nie na tablicy!
+                    rokZNaglowkaStr = segmentyDaty[2].trim();
                 }
             }
 
@@ -843,8 +842,12 @@
             const wartosc = parseFloat(document.getElementById('form-wartosc-portfela').value) || 0;
             const inflacja = parseFloat(document.getElementById('form-inflacja').value) || 0;
             if (nazwa && dataStr && wartosc > 0) {
-                historiaOkresow.push({ nazwa, dataStr, wartosc, inflacja });
-                renderujHistorie(); anulujFormularzOkresu(); obliczWszystko();
+                if (edytowanyOkresIndex !== null) {
+                    historiaOkresow[edytowanyOkresIndex] = { nazwa, dataStr, wartosc, inflacja };
+                } else {
+                    historiaOkresow.push({ nazwa, dataStr, wartosc, inflacja });
+                }
+                renderujHistorie(); Soccer = anulujFormularzOkresu(); obliczWszystko();
             }
         }
 
@@ -856,15 +859,39 @@
                 const wyliczonyXirr = obliczXIRR(przeplywy);
                 const wyliczonyRealnyXirr = obliczFishera(wyliczonyXirr, okres.inflacja);
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td><td>${formatujWalute(okres.wartosc)}</td><td>${wyliczonyXirr.toFixed(2)}%</td><td>${okres.inflacja.toFixed(2)}%</td><td>${wyliczonyRealnyXirr.toFixed(2)}%</td><td style="text-align:center;"><button class="btn-delete" onclick="usunWierszHistorii(${index})">🗑</button></td>`;
+                tr.innerHTML = `<td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td><td>${formatujWalute(okres.wartosc)}</td><td>${wyliczonyXirr.toFixed(2)}%</td><td>${okres.inflacja.toFixed(2)}%</td><td>${wyliczonyRealnyXirr.toFixed(2)}%</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajOkresDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunWierszHistorii(${index})">🗑</button></td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        function usunWierszHistorii(idx) { historiaOkresow.splice(idx, 1); renderujHistorie(); obliczWszystko(); }
-        function pokazFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'block'; }
-        function anulujFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'none'; }
-        function wczytajInstrumentDoEdycji(idx) {}
+        function wczytajOkresDoEdycji(idx) {
+            edytowanyOkresIndex = idx;
+            const o = historiaOkresow[idx];
+            document.getElementById('form-nazwa-okresu').value = o.nazwa;
+            document.getElementById('form-data-okresu').value = o.dataStr;
+            document.getElementById('form-wartosc-portfela').value = o.wartosc;
+            document.getElementById('form-inflacja').value = o.inflacja;
+            document.getElementById('panel-nowy-okres').style.display = 'block';
+        }
+
+        function usunWierszHistorii(idx) {
+            if (confirm("Czy na pewno chcesz bezpowrotnie usunąć ten zapis historyczny?")) {
+                historiaOkresow.splice(idx, 1); renderujHistorie(); obliczWszystko();
+            }
+        }
+
+        function pokazFormularzInstrumentu() { edytowanyInstrumentIndex = null; document.getElementById('form-ins-nazwa').value = ""; document.getElementById('form-ins-nominal').value = ""; document.getElementById('form-ins-aktualna').value = ""; document.getElementById('panel-nowy-instrument').style.display = 'block'; }
+        function anulujFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'none'; edytowanyInstrumentIndex = null; }
+
+        function wczytajInstrumentDoEdycji(idx) {
+            edytowanyInstrumentIndex = idx;
+            const ins = rejestrAktywów[idx];
+            document.getElementById('form-ins-nazwa').value = ins.nazwa;
+            document.getElementById('form-ins-nominal').value = ins.nominal;
+            document.getElementById('form-ins-aktualna').value = ins.aktualna;
+            document.getElementById('form-ins-klasa').value = ins.klasa;
+            document.getElementById('panel-nowy-instrument').style.display = 'block';
+        }
 
         function zapiszNowyInstrumentDoTabeli() {
             const n = document.getElementById('form-ins-nazwa').value.trim();
@@ -872,21 +899,45 @@
             const akt = parseFloat(document.getElementById('form-ins-aktualna').value) || 0;
             const k = document.getElementById('form-ins-klasa').value;
             if (n && nom > 0) {
-                rejestrAktywów.push({ id: Date.now(), nazwa: n, nominal: nom, aktualna: akt, klasa: k });
+                if (edytowanyInstrumentIndex !== null) {
+                    rejestrAktywów[edytowanyInstrumentIndex].nazwa = n;
+                    rejestrAktywów[edytowanyInstrumentIndex].nominal = nom;
+                    rejestrAktywów[edytowanyInstrumentIndex].aktualna = akt;
+                    rejestrAktywów[edytowanyInstrumentIndex].klasa = k;
+                } else {
+                    rejestrAktywów.push({ id: Date.now(), nazwa: n, nominal: nom, aktualna: akt, klasa: k });
+                }
                 anulujFormularzInstrumentu(); obliczWszystko();
             }
         }
 
-        function usunInstrument(idx) { rejestrAktywów.splice(idx, 1); obliczWszystko(); }
-        function pokazFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'block'; }
-        function anulujFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'none'; }
-        function wczytajDoplateDoEdycji(idx) {}
+        function usunInstrument(idx) {
+            if (confirm("Czy na pewno chcesz bezpowrotnie usunąć ten składnik majątku z rejestru?")) {
+                rejestrAktywów.splice(idx, 1); obliczWszystko();
+            }
+        }
+
+        function pokazFormularzDoplaty() { edytowanaDoplataIndex = null; document.getElementById('form-dop-kwota').value = ""; document.getElementById('panel-nowa-doplata').style.display = 'block'; }
+        function anulujFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'none'; edytowanaDoplataIndex = null; }
+        function wczytajDoplateDoEdycji(idx) {
+            edytowanaDoplataIndex = idx;
+            const dop = rejestrDoplat[idx];
+            document.getElementById('form-dop-data').value = dop.dataStr;
+            document.getElementById('form-dop-kwota').value = dop.kwota;
+            document.getElementById('form-dop-cel-instrument').value = dop.cel;
+            document.getElementById('panel-nowa-doplata').style.display = 'block';
+        }
+
         function zapiszNowaDoplateDoTabeli() {
             const d = document.getElementById('form-dop-data').value;
             const kw = parseFloat(document.getElementById('form-dop-kwota').value) || 0;
             const c = document.getElementById('form-dop-cel-instrument').value;
             if (d && kw > 0) {
-                rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
+                if (edytowanaDoplataIndex !== null) {
+                    rejestrDoplat[edytowanaDoplataIndex] = { dataStr: d, cel: c, kwota: kw };
+                } else {
+                    rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
+                }
                 renderujDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
             }
         }
@@ -901,18 +952,27 @@
             rejestrDoplat.forEach((dop, index) => {
                 if (dop) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td><strong>${dop.dataStr}</strong></td><td>${dop.cel}</td><td style="text-align:right;">${formatujWalute(dop.kwota)}</td><td style="text-align:center;"><button class="btn-delete" onclick="usunDoplate(${index})">🗑</button></td>`;
+                    tr.innerHTML = `<td><strong>${dop.dataStr}</strong></td><td>${dop.cel}</td><td style="text-align:right;">${formatujWalute(dop.kwota)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunDoplate(${index})">🗑</button></td>`;
                     tbody.appendChild(tr);
                 }
             });
         }
 
-        function usunDoplate(idx) { rejestrDoplat.splice(idx, 1); renderujDoplaty(); obliczWszystko(); }
+        function usunDoplate(idx) {
+            if (confirm("Czy na pewno chcesz bezpowrotnie usunąć tę wpłatę z rejestru dopłat?")) {
+                rejestrDoplat.splice(idx, 1); renderujDoplaty(); obliczWszystko();
+            }
+        }
 
         function odswiezOpcjeCeluWDoplatach() {
             const selectCel = document.getElementById('form-dop-cel-instrument');
-            if (!selectCel) return; selectCel.innerHTML = "";
-            rejestrAktywów.forEach(ins => { if(ins) selectCel.innerHTML += `<option value="${ins.nazwa}">${ins.nazwa}</option>`; });
+            if (!selectCel) return; 
+            const aktualnyCel = selectCel.value;
+            selectCel.innerHTML = "";
+            rejestrAktywów.forEach(ins => { 
+                if(ins) selectCel.innerHTML += `<option value="${ins.nazwa}">${ins.nazwa}</option>`; 
+            });
+            if (aktualnyCel) selectCel.value = aktualnyCel;
         }
 
         function eksportujDaneDoJSON() {
