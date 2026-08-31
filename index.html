@@ -543,7 +543,7 @@
                     }
                 });
             }
-            renderujDoplaty();
+            renderGridCustomDoplaty();
         }
 
         function zapiszDoLocalStorage() {
@@ -574,7 +574,6 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            if (przeplywy.length === 0 || !przeplywy[0].data) return 0;
             const dataPocz = new Date(przeplywy[0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
@@ -765,13 +764,11 @@
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
                     sumaNowychDoplat += dop.kwota;
-                    // Wyciągamy rok i miesiąc, np. "2026-09" ze stringa "2026-09-15"
                     let kluczMiesiaca = dop.dataStr.substring(0, 7);
                     unikalneMiesiaceDoplat.add(kluczMiesiaca);
                 }
             });
 
-            // Liczba miesięcy to liczba unikalnych miesięcy z wpłatami (minimum 1, aby uniknąć dzielenia przez 0)
             let liczbaMiesiecyDzielnik = Math.max(1, unikalneMiesiaceDoplat.size);
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / liczbaMiesiecyDzielnik) : 0;
 
@@ -933,11 +930,11 @@
                 } else {
                     rejestrDoplat.push({ dataStr: d, cel: c, kwota: kw });
                 }
-                renderujDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
+                renderGridCustomDoplaty(); anulujFormularzDoplaty(); obliczWszystko();
             }
         }
 
-        function renderujDoplaty() {
+        function renderGridCustomDoplaty() {
             const tbody = document.getElementById('doplaty-rows');
             if(!tbody) return; tbody.innerHTML = "";
             rejestrDoplat.sort((a, b) => {
@@ -955,7 +952,7 @@
 
         function usunDoplate(idx) {
             if (confirm("Czy na pewno chcesz bezpowrotnie usunąć tę wpłatę z rejestru dopłat?")) {
-                rejestrDoplat.splice(idx, 1); renderujDoplaty(); obliczWszystko();
+                rejestrDoplat.splice(idx, 1); renderGridCustomDoplaty(); obliczWszystko();
             }
         }
 
@@ -984,14 +981,20 @@
             czytnik.onload = function(e) {
                 try {
                     const p = JSON.parse(e.target.result);
-                    if (p.aktywa && p.historia) {
-                        rejestrAktywów = p.aktywa; historiaOkresow = p.historia; rejestrDoplat = p.doplaty || [];
-                        if (p.dataStanu) { globalnaDataStanu = p.dataStanu; document.getElementById('lbl-data-stanu').innerText = globalnaDataStanu; }
+                    if (p.aktywa && p.historia && p.doplaty) {
+                        // TWARDE NADPISANIE LOCALSTORAGE PRZED URUCHOMIENIEM INTERFEJSU
+                        localStorage.setItem('finanse_data_stanu', p.dataStanu || "28.08.2026");
+                        localStorage.setItem('finanse_aktywa', JSON.stringify(p.aktywa));
+                        localStorage.setItem('finanse_historia', JSON.stringify(p.historia));
+                        localStorage.setItem('finanse_doplaty', JSON.stringify(p.doplaty));
                         
-                        // WYMUSZENIE ZAPISU DO LOCALSTORAGE PRZEGLĄDARKI PO IMPORCIE
-                        zapiszDoLocalStorage();
+                        // PONOWNE INICJALIZOWANIE STRONY Z BAZY LOCALSTORAGE
+                        zaladujDane();
+                        renderGridCustomDoplaty();
+                        obliczWszystko();
+                        renderujHistorie();
                         
-                        renderujDoplaty(); obliczWszystko(); renderujHistorie(); alert("Dane zaimportowane i zapisane!");
+                        alert("Dane pomyślnie zaimportowane z kopii zapasowej!");
                     } else { alert("Niepoprawny format pliku JSON!"); }
                 } catch(err) { alert("Błąd przetwarzania pliku!"); }
             };
