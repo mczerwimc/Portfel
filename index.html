@@ -536,9 +536,9 @@
                     const input = document.getElementById('cfg-target-' + typ);
                     if (btn && input) {
                         if (zablokowaneSuwaki[typ] === true) {
-                            btn.innerHTML = '🔒'; input.disabled = true; input.style.opacity = '0.5';
+                            btn.textContent = ''; btn.textContent = '🔒'; input.disabled = true; input.style.opacity = '0.5';
                         } else {
-                            btn.innerHTML = '🔓'; input.disabled = false; input.style.opacity = '1';
+                            btn.textContent = ''; btn.textContent = '🔓'; input.disabled = false; input.style.opacity = '1';
                         }
                     }
                 });
@@ -663,9 +663,9 @@
             const input = document.getElementById('cfg-target-' + typ);
             if (btn && input) {
                 if (zablokowaneSuwaki[typ] === true) {
-                    btn.innerHTML = '🔒'; input.disabled = true; input.style.opacity = '0.5';
+                    btn.textContent = ''; btn.textContent = '🔒'; input.disabled = true; input.style.opacity = '0.5';
                 } else {
-                    btn.innerHTML = '🔓'; input.disabled = false; input.style.opacity = '1';
+                    btn.textContent = ''; btn.textContent = '🔓'; input.disabled = false; input.style.opacity = '1';
                 }
             }
             zapiszDoLocalStorage();
