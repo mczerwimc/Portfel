@@ -238,7 +238,10 @@
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Poduszka bezpieczeństwa (cel)</span>
-                        <span id="lbl-target-poduszka">30%</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="lbl-target-poduszka">30%</span>
+                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                        </div>
                     </div>
                     <input type="range" id="cfg-target-poduszka" min="0" max="100" value="30" oninput="dostosujSuwaki('poduszka')">
                     <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-poduszka"></div>
@@ -247,7 +250,10 @@
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Portfel długoterminowy (cel)</span>
-                        <span id="lbl-target-bezpieczny">40%</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="lbl-target-bezpieczny">40%</span>
+                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                        </div>
                     </div>
                     <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="40" oninput="dostosujSuwaki('bezpieczny')">
                     <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-bezpieczny"></div>
@@ -256,7 +262,10 @@
                 <div class="slider-group">
                     <div class="slider-label">
                         <span>Komponent rynkowy (cel)</span>
-                        <span id="lbl-target-rynkowy">30%</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="lbl-target-rynkowy">30%</span>
+                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                        </div>
                     </div>
                     <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="30" oninput="dostosujSuwaki('rynkowy')">
                     <div style="font-size: 12px; margin-top: 4px; color: var(--primary-navy);" id="dev-rynkowy"></div>
@@ -548,7 +557,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy[0].data);
+            const dataPocz = new Date(przeplywy.data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -629,34 +638,52 @@
         }
         function formatujWalute(kwota) { return kwota.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' }); }
         function ustawOdchylenie(id, etykieta, odchylenie) { if (document.getElementById(id)) document.getElementById(id).innerText = etykieta + " — Odchylenie: " + (odchylenie >= 0 ? "+" : "") + odchylenie.toFixed(2) + "%"; }
+        let zablokowaneSuwaki = { poduszka: false, bezpieczny: false, rynkowy: false };
+
+        function toggleBlokadySuwaka(typ) {
+            zablokowaneSuwaki[typ] = !zablokowaneSuwaki[typ];
+            const btn = document.getElementById('lock-' + typ);
+            const input = document.getElementById('cfg-target-' + typ);
+            if (zablokowaneSuwaki[typ]) {
+                btn.innerText = '🔒'; input.style.opacity = '0.6';
+            } else {
+                btn.innerText = '🔓'; input.style.opacity = '1';
+            }
+        }
+
         function dostosujSuwaki(zmieniony) {
+            if (zablokowaneSuwaki[zmieniony]) {
+                const zapisane = JSON.parse(localStorage.getItem('finanse_suwaki'));
+                if (zapisane) document.getElementById('cfg-target-' + zmieniony).value = zapisane[zmieniony === 'poduszka' ? 'p' : (zmieniony === 'bezpieczny' ? 'b' : 'r')];
+                return;
+            }
             let p = parseInt(document.getElementById('cfg-target-poduszka').value) || 0;
             let b = parseInt(document.getElementById('cfg-target-bezpieczny').value) || 0;
             let r = parseInt(document.getElementById('cfg-target-rynkowy').value) || 0;
 
             if (zmieniony === 'poduszka') {
-                let reszta = 100 - p;
-                if (b + r > 0) { let stosunekB = b / (b + r); b = Math.round(reszta * stosunekB); r = reszta - b; } 
-                else { b = Math.round(reszta / 2); r = reszta - b; }
+                if (!zablokowaneSuwaki.bezpieczny && !zablokowaneSuwaki.rynkowy) {
+                    let reszta = 100 - p; if (b + r > 0) { let st = b / (b + r); b = Math.round(reszta * st); r = reszta - b; } else { b = Math.round(reszta / 2); r = reszta - b; }
+                } else if (!zablokowaneSuwaki.bezpieczny && zablokowaneSuwaki.rynkowy) { b = 100 - p - r; if (b < 0) { b = 0; p = 100 - r; }
+                } else if (zablokowaneSuwaki.bezpieczny && !zablokowaneSuwaki.rynkowy) { r = 100 - p - b; if (r < 0) { r = 0; p = 100 - b; } }
             } else if (zmieniony === 'bezpieczny') {
-                let reszta = 100 - b;
-                if (p + r > 0) { let stosunekP = p / (p + r); p = Math.round(reszta * stosunekP); r = reszta - p; } 
-                else { p = Math.round(reszta / 2); r = reszta - p; }
+                if (!zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.rynkowy) {
+                    let reszta = 100 - b; if (p + r > 0) { let st = p / (p + r); p = Math.round(reszta * st); r = reszta - p; } else { p = Math.round(reszta / 2); r = reszta - p; }
+                } else if (!zablokowaneSuwaki.poduszka && zablokowaneSuwaki.rynkowy) { p = 100 - b - r; if (p < 0) { p = 0; b = 100 - r; }
+                } else if (zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.rynkowy) { r = 100 - b - p; if (r < 0) { r = 0; b = 100 - p; } }
             } else if (zmieniony === 'rynkowy') {
-                let reszta = 100 - r;
-                if (p + b > 0) { let stosunekP = p / (p + b); p = Math.round(reszta * stosunekP); b = reszta - p; } 
-                else { p = Math.round(reszta / 2); b = reszta - p; }
+                if (!zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.bezpieczny) {
+                    let reszta = 100 - r; if (p + b > 0) { let st = p / (p + b); p = Math.round(reszta * st); b = reszta - p; } else { p = Math.round(reszta / 2); b = reszta - p; }
+                } else if (!zablokowaneSuwaki.poduszka && zablokowaneSuwaki.bezpieczny) { p = 100 - r - b; if (p < 0) { p = 0; r = 100 - b; }
+                } else if (zablokowaneSuwaki.poduszka && !zablokowaneSuwaki.bezpieczny) { b = 100 - r - p; if (b < 0) { b = 0; r = 100 - p; } }
             }
-            document.getElementById('cfg-target-poduszka').value = p;
-            document.getElementById('cfg-target-bezpieczny').value = b;
-            document.getElementById('cfg-target-rynkowy').value = r;
-            document.getElementById('lbl-target-poduszka').innerText = p + "%";
-            document.getElementById('lbl-target-bezpieczny').innerText = b + "%";
-            document.getElementById('lbl-target-rynkowy').innerText = r + "%";
+            p = Math.max(0, Math.min(100, p)); b = Math.max(0, Math.min(100, b)); r = Math.max(0, Math.min(100, r));
+            document.getElementById('cfg-target-poduszka').value = p; document.getElementById('cfg-target-bezpieczny').value = b; document.getElementById('cfg-target-rynkowy').value = r;
+            document.getElementById('lbl-target-poduszka').innerText = p + "%"; document.getElementById('lbl-target-bezpieczny').innerText = b + "%"; document.getElementById('lbl-target-rynkowy').innerText = r + "%";
             obliczWszystko();
         }
 
-        function pokazFormularzOkresu() { edytowanyOkresIndex = null; document.getElementById('panel-nowy-okres').style.display = 'block'; }
+        function pokazFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'block'; }
         function anulujFormularzOkresu() { document.getElementById('panel-nowy-okres').style.display = 'none'; }
 
         function obliczWszystko() {
@@ -666,15 +693,13 @@
                 tbodyIns.innerHTML = "";
                 rejestrAktywów.forEach((ins, index) => {
                     if (ins && sumy[ins.klasa]) {
-                        sumy[ins.klasa].nominal += ins.nominal || 0;
-                        sumy[ins.klasa].aktualna += ins.aktualna || 0;
+                        sumy[ins.klasa].nominal += ins.nominal || 0; sumy[ins.klasa].aktualna += ins.aktualna || 0;
                         const tr = document.createElement('tr');
                         tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-delete" onclick="usunInstrument(${index})">🗑</button></td>`;
                         tbodyIns.appendChild(tr);
                     }
                 });
             }
-
             if(document.getElementById('nom-poduszka')) document.getElementById('nom-poduszka').value = formatujWalute(sumy.poduszka.nominal);
             if(document.getElementById('akt-poduszka')) document.getElementById('akt-poduszka').value = formatujWalute(sumy.poduszka.aktualna);
             if(document.getElementById('nom-bezpieczny')) document.getElementById('nom-bezpieczny').value = formatujWalute(sumy.bezpieczny.nominal);
@@ -688,26 +713,50 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA WYŁĄCZNIE OD 1 WRZEŚNIA 2026 ROKU (METODOLOGIA FORTECY)
-            let sumaNowychDoplat = 0, unikalneMiesiace = new Set();
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA – POPRAWIONA LOGIKA CZASOWA OD 01.09.2026
+            let sumaNowychDoplat = 0;
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
                     sumaNowychDoplat += dop.kwota;
-                    unikalneMiesiace.add(dop.dataStr.substring(0, 7));
                 }
             });
-            let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, unikalneMiesiace.size)) : 0;
 
-            // 2. AUTONOMICZNY, BEZPROGOWY I NATYCHMIASTOWY SILNIK LIMITU IKE
+            let iloscMiesiecy = 1; 
+            if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
+                let czesci = globalnaDataStanu.split('.');
+                if (czesci.length === 3) {
+                    let dNaglowka = parseInt(czesci[0]) || 1;
+                    let mNaglowka = parseInt(czesci[1]) || 9;
+                    let rNaglowka = parseInt(czesci[2]) || 2026;
+                    let roznicaMiesiecy = (rNaglowka - 2026) * 12 + (mNaglowka - 9);
+                    if (roznicaMiesiecy > 0) {
+                        iloscMiesiecy = roznicaMiesiecy + (dNaglowka / 30.0);
+                    } else {
+                        iloscMiesiecy = Math.max(1, dNaglowka) / 30.0;
+                    }
+                }
+            }
+            let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
+
+            // 2. BEZBŁĘDNY SILNIK LIMITU IKE SPEŁNIAJĄCY WYMOGI METODOLOGICZNE
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
-            let rokZNaglowkaStr = globalnaDataStanu.substring(globalnaDataStanu.length - 4);
+            let rokZNaglowkaStr = "2026";
+            if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
+                let segmentyDaty = globalnaDataStanu.split('.');
+                if (segmentyDaty.length === 3) {
+                    rokZNaglowkaStr = segmentyDaty[2].trim();
+                }
+            }
 
             rejestrDoplat.forEach(dop => {
-                if (dop && dop.dataStr && dop.cel && dop.dataStr.includes(rokZNaglowkaStr)) {
-                    let celLower = dop.cel.toLowerCase();
-                    if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
-                        wykorzystanyLimitIkeBiezacyRok += dop.kwota;
+                if (dop && dop.dataStr && dop.cel) {
+                    let rokWplatyStr = dop.dataStr.substring(0, 4);
+                    if (rokWplatyStr === rokZNaglowkaStr) {
+                        let celLower = dop.cel.toLowerCase();
+                        if (celLower.includes('ike') || celLower.includes('etf') || celLower.includes('akcje')) {
+                            wykorzystanyLimitIkeBiezacyRok += dop.kwota;
+                        }
                     }
                 }
             });
@@ -716,7 +765,7 @@
             const sugerowanaMiesiecznaWplataIke = pozostalyLimitIke > 0 ? pozostalyLimitIke / Math.max(1, (12 - new Date().getMonth())) : 0;
 
             document.getElementById('lbl-wklad-nominalny').innerText = formatujWalute(lacznyWkladNominalny);
-            document.getElementById('lbl-wartosc-biezaca').innerText = formatUTI = formatujWalute(lacznaWartoscBiezaca);
+            document.getElementById('lbl-wartosc-biezaca').innerText = formatujWalute(lacznaWartoscBiezaca);
             document.getElementById('lbl-srednia-doplata').innerText = formatujWalute(sredniaMiesiecznaDoplata);
             if (document.getElementById('lbl-limit-ike')) document.getElementById('lbl-limit-ike').value = formatujWalute(Math.max(0, pozostalyLimitIke));
             if (document.getElementById('lbl-miesieczna-ike')) document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
@@ -841,7 +890,7 @@
                     } else { alert("Niepoprawny format pliku JSON!"); }
                 } catch(err) { alert("Błąd przetwarzania pliku!"); }
             };
-            czytnik.readAsText(input.files[0]);
+            czytnik.readAsText(input.files);
             input.value = "";
         }
 
