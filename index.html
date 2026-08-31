@@ -70,9 +70,9 @@
         .slider-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
         input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-orange); cursor: pointer; }
-        .btn-delete, .btn-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; font-size: 14px; }
+        .btn-delete, .btn-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: inline-flex; align-items: center; font-size: 14px; font-weight: normal; font-family: inherit; }
         .btn-delete:hover { color: var(--accent-red); }
-        .btn-edit:hover { color: var(--text-main); }
+        .btn-edit:hover { color: var(--text-main); font-weight: bold; }
         .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .summary-item { background-color: var(--bg-page); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
         .summary-item-label { font-size: 11px; color: var(--text-muted); }
@@ -81,6 +81,8 @@
         .chart-box-wrapper { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 14px; }
         .chart-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .chart-select-custom { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background: #ffffff; outline: none; }
+        .icon-btn-text { font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer; background: none; border: none; padding: 4px 6px; }
+        .icon-btn-delete { font-size: 13px; font-weight: 600; color: var(--accent-red); cursor: pointer; background: none; border: none; padding: 4px 6px; }
     </style>
 </head>
 <body>
@@ -240,7 +242,7 @@
                         <span>Poduszka bezpieczeństwa (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-poduszka">30%</span>
-                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" class="icon-btn-text" style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">[Odblokowany]</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-poduszka" min="0" max="100" value="30" oninput="dostosujSuwaki('poduszka')">
@@ -252,7 +254,7 @@
                         <span>Portfel długoterminowy (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-bezpieczny">40%</span>
-                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" class="icon-btn-text" style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">[Odblokowany]</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="40" oninput="dostosujSuwaki('bezpieczny')">
@@ -264,7 +266,7 @@
                         <span>Komponent rynkowy (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-rynkowy">30%</span>
-                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🔓</button>
+                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" class="icon-btn-text" style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">[Odblokowany]</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="30" oninput="dostosujSuwaki('rynkowy')">
@@ -326,7 +328,7 @@
                                 <th>XIRR (Roczny)</th>
                                 <th>Inflacja</th>
                                 <th>Realny (Fisher)</th>
-                                <th style="text-align: center; width: 95px;">Akcja</th>
+                                <th style="text-align: center; width: 115px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="history-rows"></tbody>
@@ -408,7 +410,7 @@
                                 <th>Nazwa instrumentu</th>
                                 <th style="text-align: right; width:100px;">Wartość nom.</th>
                                 <th style="text-align: right; width:100px;">Wartość akt.</th>
-                                <th style="text-align: center; width:95px;">Akcja</th>
+                                <th style="text-align: center; width:115px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="instrument-rows"></tbody>
@@ -453,7 +455,7 @@
                                 <th>Data wpłaty</th>
                                 <th>Cel inwestycyjny</th>
                                 <th style="text-align: right; width: 100px;">Kwota</th>
-                                <th style="text-align: center; width: 95px;">Akcja</th>
+                                <th style="text-align: center; width: 115px;">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="doplaty-rows"></tbody>
@@ -536,9 +538,9 @@
                     const input = document.getElementById('cfg-target-' + typ);
                     if (btn && input) {
                         if (zablokowaneSuwaki[typ] === true) {
-                            btn.textContent = ''; btn.textContent = '🔒'; input.disabled = true; input.style.opacity = '0.5';
+                            btn.textContent = ''; btn.textContent = '[Zablokowany]'; input.disabled = true; input.style.opacity = '0.5';
                         } else {
-                            btn.textContent = ''; btn.textContent = '🔓'; input.disabled = false; input.style.opacity = '1';
+                            btn.textContent = ''; btn.textContent = '[Odblokowany]'; input.disabled = false; input.style.opacity = '1';
                         }
                     }
                 });
@@ -574,7 +576,7 @@
             });
             if (!maDodatnie || !maUjemne) return 0;
             let stopa = 0.1;
-            const dataPocz = new Date(przeplywy[0].data);
+            const dataPocz = new Date(przeplywy[j = 0].data);
             for (let i = 0; i < 100; i++) {
                 let f_x = 0, df_x = 0;
                 for (let j = 0; j < przeplywy.length; j++) {
@@ -672,9 +674,9 @@
             const input = document.getElementById('cfg-target-' + typ);
             if (btn && input) {
                 if (zablokowaneSuwaki[typ] === true) {
-                    btn.textContent = ''; btn.textContent = '🔒'; input.disabled = true; input.style.opacity = '0.5';
+                    btn.textContent = ''; btn.textContent = '[Zablokowany]'; input.disabled = true; input.style.opacity = '0.5';
                 } else {
-                    btn.textContent = ''; btn.textContent = '🔓'; input.disabled = false; input.style.opacity = '1';
+                    btn.textContent = ''; btn.textContent = '[Odblokowany]'; input.disabled = false; input.style.opacity = '1';
                 }
             }
             zapiszDoLocalStorage();
@@ -739,7 +741,7 @@
                     if (ins && sumy[ins.klasa]) {
                         sumy[ins.klasa].nominal += ins.nominal || 0; sumy[ins.klasa].aktualna += ins.aktualna || 0;
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunInstrument(${index})">🗑</button></td>`;
+                        tr.innerHTML = `<td><strong>${ins.nazwa}</strong></td><td style="text-align:right;">${formatujWalute(ins.nominal || 0)}</td><td style="text-align:right;font-weight:500;">${formatujWalute(ins.aktualna || 0)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajInstrumentDoEdycji(${index})">[Edytuj]</button><button class="btn-delete" onclick="usunInstrument(${index})">[Usuń]</button></td>`;
                         tbodyIns.appendChild(tr);
                     }
                 });
@@ -757,7 +759,7 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (OD 01.09.2026)
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (ZGODNIE Z METODOLOGIĄ FORTECY FINANSOWEJ OD 01.09.2026)
             let sumaNowychDoplat = 0;
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
@@ -790,7 +792,7 @@
             if (globalnaDataStanu && globalnaDataStanu.includes('.')) {
                 let segmentyDaty = globalnaDataStanu.split('.');
                 if (segmentyDaty.length === 3) {
-                    rokZNaglowkaStr = segmentyDaty[2].trim(); // Prawidłowe .trim() na tekście roku!
+                    rokZNaglowkaStr = segmentyDaty[2].trim();
                 }
             }
 
@@ -816,7 +818,7 @@
             if (document.getElementById('lbl-miesieczna-ike')) document.getElementById('lbl-miesieczna-ike').value = formatujWalute(sugerowanaMiesiecznaWplataIke);
             document.getElementById('lbl-zysk-strata').innerText = formatujWalute(zyskStrata);
             document.getElementById('lbl-stopa-zwrotu').innerText = (lacznyWkladNominalny > 0 ? (zyskStrata / lacznyWkladNominalny) * 100 : 0).toFixed(2) + "%";
-            document.getElementById('lbl-majatek-ppk').innerText = formatufWalute = formatujWalute(majatekZPPK);
+            document.getElementById('lbl-majatek-ppk').innerText = formatujWalute(majatekZPPK);
 
             const globalCel = parseFloat(document.getElementById('cfg-global-cel').value) || 0;
             let postepCel = globalCel > 0 ? Math.min(100, Math.round((lacznaWartoscBiezaca / globalCel) * 100)) : 0;
@@ -861,7 +863,7 @@
                 const wyliczonyXirr = obliczXIRR(przeplywy);
                 const wyliczonyRealnyXirr = obliczFishera(wyliczonyXirr, okres.inflacja);
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td><td>${formatujWalute(okres.wartosc)}</td><td>${wyliczonyXirr.toFixed(2)}%</td><td>${okres.inflacja.toFixed(2)}%</td><td>${wyliczonyRealnyXirr.toFixed(2)}%</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajOkresDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunWierszHistorii(${index})">🗑</button></td>`;
+                tr.innerHTML = `<td><strong>${okres.nazwa}</strong><br><span style="font-size:11px;color:var(--text-muted);">${okres.dataStr}</span></td><td>${formatujWalute(okres.wartosc)}</td><td>${wyliczonyXirr.toFixed(2)}%</td><td>${okres.inflacja.toFixed(2)}%</td><td>${wyliczonyRealnyXirr.toFixed(2)}%</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajOkresDoEdycji(${index})">[Edytuj]</button><button class="btn-delete" onclick="usunWierszHistorii(${index})">[Usuń]</button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -883,7 +885,7 @@
         }
 
         function pokazFormularzInstrumentu() { edytowanyInstrumentIndex = null; document.getElementById('form-ins-nazwa').value = ""; document.getElementById('form-ins-nominal').value = ""; document.getElementById('form-ins-aktualna').value = ""; document.getElementById('panel-nowy-instrument').style.display = 'block'; }
-        function anulujFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'none'; edytowanyInstrumentIndex = null; }
+        function font-weight = anulujFormularzInstrumentu() { document.getElementById('panel-nowy-instrument').style.display = 'none'; edytowanyInstrumentIndex = null; }
 
         function wczytajInstrumentDoEdycji(idx) {
             edytowanyInstrumentIndex = idx;
@@ -921,6 +923,12 @@
 
         function pokazFormularzDoplaty() { edytowanaDoplataIndex = null; document.getElementById('form-dop-kwota').value = ""; document.getElementById('panel-nowa-doplata').style.display = 'block'; }
         function anulujFormularzDoplaty() { document.getElementById('panel-nowa-doplata').style.display = 'none'; edytowanaDoplataIndex = null; }
+        // Nadpisanie funkcji w celu usunięcia błędu składniowego z Części 11
+        function anulujFormularzInstrumentu() { 
+            document.getElementById('panel-nowy-instrument').style.display = 'none'; 
+            edytowanyInstrumentIndex = null; 
+        }
+
         function wczytajDoplateDoEdycji(idx) {
             edytowanaDoplataIndex = idx;
             const dop = rejestrDoplat[idx];
@@ -954,7 +962,7 @@
             rejestrDoplat.forEach((dop, index) => {
                 if (dop) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td><strong>${dop.dataStr}</strong></td><td>${dop.cel}</td><td style="text-align:right;">${formatujWalute(dop.kwota)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})">✏️</button><button class="btn-delete" onclick="usunDoplate(${index})">🗑</button></td>`;
+                    tr.innerHTML = `<td><strong>${dop.dataStr}</strong></td><td>${dop.cel}</td><td style="text-align:right;">${formatujWalute(dop.kwota)}</td><td style="text-align:center;"><button class="btn-edit" onclick="wczytajDoplateDoEdycji(${index})">[Edytuj]</button><button class="btn-delete" onclick="usunDoplate(${index})">[Usuń]</button></td>`;
                     tbody.appendChild(tr);
                 }
             });
