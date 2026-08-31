@@ -240,7 +240,7 @@
                         <span>Poduszka bezpieczeństwa (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-poduszka">30%</span>
-                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">&#128275;</button>
+                            <button id="lock-poduszka" onclick="toggleBlokadySuwaka('poduszka')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-poduszka" min="0" max="100" value="30" oninput="dostosujSuwaki('poduszka')">
@@ -252,7 +252,7 @@
                         <span>Portfel długoterminowy (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-bezpieczny">40%</span>
-                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">&#128275;</button>
+                            <button id="lock-bezpieczny" onclick="toggleBlokadySuwaka('bezpieczny')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-bezpieczny" min="0" max="100" value="40" oninput="dostosujSuwaki('bezpieczny')">
@@ -264,7 +264,7 @@
                         <span>Komponent rynkowy (cel)</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="lbl-target-rynkowy">30%</span>
-                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">&#128275;</button>
+                            <button id="lock-rynkowy" onclick="toggleBlokadySuwaka('rynkowy')" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0 2px; color:var(--text-main); font-weight:bold;">&#9633;</button>
                         </div>
                     </div>
                     <input type="range" id="cfg-target-rynkowy" min="0" max="100" value="30" oninput="dostosujSuwaki('rynkowy')">
@@ -536,9 +536,9 @@
                     const input = document.getElementById('cfg-target-' + typ);
                     if (btn && input) {
                         if (zablokowaneSuwaki[typ] === true) {
-                            btn.innerHTML = '&#128274;'; input.disabled = true; input.style.opacity = '0.5';
+                            btn.innerHTML = '&#9632;'; input.disabled = true; input.style.opacity = '0.5';
                         } else {
-                            btn.innerHTML = '&#128275;'; input.disabled = false; input.style.opacity = '1';
+                            btn.innerHTML = '&#9633;'; input.disabled = false; input.style.opacity = '1';
                         }
                     }
                 });
@@ -672,9 +672,9 @@
             const input = document.getElementById('cfg-target-' + typ);
             if (btn && input) {
                 if (zablokowaneSuwaki[typ] === true) {
-                    btn.innerHTML = '&#128274;'; input.disabled = true; input.style.opacity = '0.5';
+                    btn.innerHTML = '&#9632;'; input.disabled = true; input.style.opacity = '0.5';
                 } else {
-                    btn.innerHTML = '&#128275;'; input.disabled = false; input.style.opacity = '1';
+                    btn.innerHTML = '&#9633;'; input.disabled = false; input.style.opacity = '1';
                 }
             }
             zapiszDoLocalStorage();
@@ -747,7 +747,7 @@
             if(document.getElementById('nom-poduszka')) document.getElementById('nom-poduszka').value = formatujWalute(sumy.poduszka.nominal);
             if(document.getElementById('akt-poduszka')) document.getElementById('akt-poduszka').value = formatujWalute(sumy.poduszka.aktualna);
             if(document.getElementById('nom-bezpieczny')) document.getElementById('nom-bezpieczny').value = formatujWalute(sumy.bezpieczny.nominal);
-            if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatujWalute(sumy.bezpieczny.aktualna);
+            if(document.getElementById('akt-bezpieczny')) document.getElementById('akt-bezpieczny').value = formatufWalute = formatujWalute(sumy.bezpieczny.aktualna);
             if(document.getElementById('nom-rynkowy')) document.getElementById('nom-rynkowy').value = formatujWalute(sumy.rynkowy.nominal);
             if(document.getElementById('akt-rynkowy')) document.getElementById('akt-rynkowy').value = formatujWalute(sumy.rynkowy.aktualna);
             const aktPpkMichal = parseFloat(document.getElementById('akt-ppk-michal').value) || 0;
@@ -757,7 +757,7 @@
             const zyskStrata = lacznaWartoscBiezaca - lacznyWkladNominalny;
             const majatekZPPK = lacznaWartoscBiezaca + aktPpkMichal + aktPpkMarta;
 
-            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA (OD 01.09.2026)
+            // 1. ŚREDNIA MIESIĘCZNA DOPŁATA — CAŁKOWICIE NAPRAWIONA LOGIKA CZASOWA OD 01.09.2026
             let sumaNowychDoplat = 0;
             rejestrDoplat.forEach(dop => {
                 if (dop && dop.dataStr && dop.dataStr >= "2026-09-01") {
@@ -782,7 +782,7 @@
             }
             let sredniaMiesiecznaDoplata = sumaNowychDoplat > 0 ? (sumaNowychDoplat / Math.max(1, Math.round(iloscMiesiecy))) : 0;
 
-            // 2. SILNIK LICZNIKA LIMITU IKE
+            // 2. SILNIK LIMITU IKE Z POPRAWNYM WYCIĄGANIEM ROKU
             const rocznyLimitIke = parseFloat(document.getElementById('cfg-limit-ike-reczny').value) || 0;
             let wykorzystanyLimitIkeBiezacyRok = 0;
             
